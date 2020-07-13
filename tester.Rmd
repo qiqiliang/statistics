@@ -4,6 +4,8 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
+library(tidyverse)
+library(tidytuesdayR)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
