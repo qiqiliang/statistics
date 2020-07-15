@@ -1,5 +1,5 @@
 ---
-title: "R Notebook"
+title: "TBI Graphs"
 output: html_notebook
 ---
 
@@ -39,4 +39,33 @@ tuesdata <- tidytuesdayR::tt_load(2020, week = 13)
 tbi_age <- tuesdata$tbi_age
 
 ```
+
+```{r}
+tbi_no_total <- tbi_age %>%
+  filter(age_group != "Total")
+```
+
+
+trying out some plots
+
+```{r}
+ggplot(data=tbi_no_total, aes(x=age_group, y = number_est, fill = type)) +
+  geom_col()+
+  labs(title = "Age and Type")
+```
+```{r}
+ggplot(data=tbi_no_total, aes(x=age_group, y = number_est, fill = injury_mechanism)) +
+  geom_col()+
+  labs(title = "Age and Mechanism")
+```
+```{r}
+tbi_specific_three <- tbi_age %>%
+  filter(age_group != "Total" & (injury_mechanism == "Assault" | injury_mechanism == "Intentional self-harm" | injury_mechanism == "Motor Vehicle Crashes" ))
+  
+ggplot(data=tbi_specific_three, aes(x=age_group, y = number_est, fill = injury_mechanism)) +
+  geom_col()+
+  labs(title = "Age and Mechanism")
+```
+To do next: clean up the age groups displayed, as there is current overlap. Try to find proportions.
+
 
