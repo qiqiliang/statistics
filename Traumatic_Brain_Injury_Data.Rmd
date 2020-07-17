@@ -68,4 +68,33 @@ ggplot(data=tbi_specific_three, aes(x=age_group, y = number_est, fill = injury_m
 ```
 To do next: clean up the age groups displayed, as there is current overlap. Try to find proportions.
 
+```{r}
+tbi_ordered_age <- tbi_specific_three %>%
+  filter(age_group != "0-17") %>%
+  mutate(age_group = fct_relevel(age_group, c("0-4", "5-14", "15-24", "25-34", "35-44", "45-54", "55-64", "65-74", "75+")))
 
+  
+ggplot(data=tbi_ordered_age, aes(x=age_group, y = number_est, fill = injury_mechanism)) +
+  geom_col()+
+  labs(title = "Age and Mechanism")
+```
+```{r}
+self_harm <- tbi_ordered_age %>%
+  filter(injury_mechanism == "Intentional self-harm") 
+
+ggplot(data=self_harm, aes(x=age_group, y = number_est)) +
+  geom_col()+
+  labs(title = "Age and Self-harm")
+```
+
+```{r}
+# ordered_ages <- tbi_age %>%
+#   filter(age_group != "0-17" & age_group != "Total") %>%
+#   mutate(age_group = fct_relevel(age_group, c("0-4", "5-14", "15-24", "25-34", "35-44", "45-54", "55-64", "65-74", "75+")))
+# 
+# 
+# ggplot(data=ordered_ages, aes(x=age_group, y = number_est)) +
+#   geom_col()+
+#   facet_wrap(ordered_ages$injury_mechanism)+
+#   labs(title = "Age and Mechanism")
+```
