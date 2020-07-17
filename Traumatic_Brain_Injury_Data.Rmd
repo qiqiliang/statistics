@@ -53,10 +53,15 @@ ggplot(data=tbi_no_total, aes(x=age_group, y = number_est, fill = type)) +
   geom_col()+
   labs(title = "Age and Type")
 ```
+
+For the segmented bar plot, you can change the color of the bars by adding the following layer to a ggplot: `scale_fill_brewer(type = "div", palette = 3)`. ("div", "seq", "qual") and colors (typically 1-9).  
+
 ```{r}
 ggplot(data=tbi_no_total, aes(x=age_group, y = number_est, fill = injury_mechanism)) +
   geom_col()+
-  labs(title = "Age and Mechanism")
+  labs(title = "Age and Mechanism") +
+  scale_fill_brewer(type = "div", palette = 2)
+
 ```
 ```{r}
 tbi_specific_three <- tbi_age %>%
@@ -88,13 +93,48 @@ ggplot(data=self_harm, aes(x=age_group, y = number_est)) +
 ```
 
 ```{r}
-# ordered_ages <- tbi_age %>%
-#   filter(age_group != "0-17" & age_group != "Total") %>%
-#   mutate(age_group = fct_relevel(age_group, c("0-4", "5-14", "15-24", "25-34", "35-44", "45-54", "55-64", "65-74", "75+")))
-# 
-# 
-# ggplot(data=ordered_ages, aes(x=age_group, y = number_est)) +
-#   geom_col()+
-#   facet_wrap(ordered_ages$injury_mechanism)+
-#   labs(title = "Age and Mechanism")
+ordered_ages <- tbi_age %>%
+  filter(age_group != "0-17" & age_group != "Total") %>%
+  mutate(age_group = fct_relevel(age_group, c("0-4", "5-14", "15-24", "25-34", "35-44", "45-54", "55-64", "65-74", "75+")))
+
+
+ggplot(data=ordered_ages, aes(x=age_group, y = number_est)) +
+  geom_col()+
+  facet_wrap(~injury_mechanism, ncol = 2)+
+  labs(title = "Age and Mechanism")
 ```
+
+("div", "seq", "qual") and colors (typically 1-9)
+```{r}
+ggplot(data=ordered_ages, aes(x=age_group, y = number_est,  fill = injury_mechanism)) +
+  geom_col()+
+  labs(title = "Age and Mechanism") +
+  scale_fill_brewer(type = "seq", palette = 1)
+```
+```{r}
+ggplot(data=tbi_year, aes(x=year, y = number_est,  fill = injury_mechanism)) +
+  geom_col()+
+  labs(title = "Year and Mechanism") +
+  scale_fill_brewer(type = "seq", palette = 1)
+```
+
+
+```{r}
+ggplot(data=tbi_year, aes(x=year, y = number_est)) +
+  geom_col()+
+  facet_wrap(~injury_mechanism, ncol = 2)+
+  labs(title = "Year and Mechanism")
+```
+```{r}
+ggplot(data=tbi_year, aes(x=year, y = rate_est)) +
+  geom_col()+
+  facet_wrap(~injury_mechanism, ncol = 1)+
+  labs(title = "Year and Mechanism")
+```
+
+
+
+
+
+
+

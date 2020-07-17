@@ -1,5 +1,5 @@
 ---
-title: "tester"
+title: "a bunch of different data"
 output: html_document
 ---
 
@@ -7,13 +7,20 @@ output: html_document
 library(tidyverse)
 library(tidytuesdayR)
 knitr::opts_chunk$set(echo = TRUE)
+
+# #installing stuff with ggmap
+# if(!requireNamespace("devtools")) install.packages("devtools")
+# devtools::install_github("dkahle/ggmap", ref = "tidyup", force=TRUE)
+# #loading library
+# library("ggmap")
+# #Set your API Key
+# ggmap::register_google(key = "SET YOUR KEY HERE")
+
+
+# https://github.com/rfordatascience/tidytuesday
 ```
 
-## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
 ```{r}
 
@@ -23,7 +30,7 @@ meteorites <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytu
 
 nuclear_explosions <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-08-20/nuclear_explosions.csv")
 
-# I don't know what the following data is and whether or not it's all the same data.
+# traumatic brain injuries
 
 tbi_age <- read.csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-03-24/tbi_age.csv')
 
@@ -31,14 +38,28 @@ tbi_year <- read.csv('https://raw.githubusercontent.com/rfordatascience/tidytues
 
 tbi_military <- read.csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-03-24/tbi_military.csv')
 
+# Get the Data
+
+polls <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-04-14/polls.csv')
+rankings <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-04-14/rankings.csv')
+
+# Or read in with tidytuesdayR package (https://github.com/thebioengineer/tidytuesdayR)
+# PLEASE NOTE TO USE 2020 DATA YOU NEED TO USE tidytuesdayR version from GitHub
+
+# Either ISO-8601 date or year/week works!
+
+# Install via devtools::install_github("thebioengineer/tidytuesdayR")
+
+tuesdata <- tidytuesdayR::tt_load('2020-04-14')
+tuesdata <- tidytuesdayR::tt_load(2020, week = 16)
+
+
+polls <- tuesdata$polls
+
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
