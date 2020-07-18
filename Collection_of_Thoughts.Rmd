@@ -54,32 +54,41 @@ hate_crimes <- readr::read_csv('https://raw.githubusercontent.com/fivethirtyeigh
 ```{r}
 # 2008 - 2014 US Suicides Rates per 100,000 Population
 # All injury, suicide, all races, all ethnicities, both sexes, all ages. annualized crude rate for united states: 12.63
+# The main thing I'm looking at.
+
+# original website
+# https://www.cdc.gov/drugoverdose/maps/rxrate-maps.html
 suicides <- read.csv('https://wisqars.cdc.gov:8443/cdcMapFramework/ExcelServlet?excelFile=m4687721_csv')
 
 suicides <- suicides %>%
   slice(22:3159) %>%
   select(- X_)
 
+# Opioid Prescribing Rate by County
+# The main thing I'm looking at.
+
+# original website
+# https://wisqars.cdc.gov:8443/cdcMapFramework/mapModuleInterface.jsp
+opioid_prescription_rate <- read.csv('https://raw.githubusercontent.com/qiqiliang/statistics/master/US_County_Prescribing_Rates_Opioids.csv')
+
+
+##############################################################################################################
+# optional content
+##############################################################################################################
+
 
 # Suicide Mortality by State
 # this one is less important
 suicide_mortality <- read.csv('https://raw.githubusercontent.com/qiqiliang/statistics/master/Suicide_Mortality_by_State.csv')
 
-
-# Opioid Prescribing Rate by County
-
-opioid_prescription_rate <- read.csv('https://raw.githubusercontent.com/qiqiliang/statistics/master/US_County_Prescribing_Rates_Opioids.csv')
-
-
 # VSRR Provisional Drug Overdose Death Counts
-
+# Not the main thing I'm looking at.
 overdose_death <- read.csv('https://raw.githubusercontent.com/qiqiliang/statistics/master/VSRR_Provisional_Drug_Overdose_Death_Counts.csv')
 
 #Potential Research Questions
 #Association between opioid prescription rate and suicide rate.
 #Can we do an overlay of the two maps??
 #Does a larger rate of legal opioid prescription cause a higher rate of overdoses and suicides?
-#Is the war on drugs caused by big pharma, funded by the government, and used as a way to harm marginalized POC?
 ```
 
 
