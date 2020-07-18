@@ -55,9 +55,35 @@ tuesdata <- tidytuesdayR::tt_load(2020, week = 16)
 
 
 polls <- tuesdata$polls
+```
+
+```{r}
+# 2008 - 2014 US Suicides Rates per 100,000 Population
+# All injury, suicide, all races, all ethnicities, both sexes, all ages. annualized crude rate for united states: 12.63
+suicides <- read.csv('https://wisqars.cdc.gov:8443/cdcMapFramework/ExcelServlet?excelFile=m4687721_csv')
+
+suicides <- suicides %>%
+  slice(22:3159) %>%
+  select(- X_)
 
 ```
 
+```{r}
+# Suicide Mortality by State
+suicide_mortality <- read.csv('https://raw.githubusercontent.com/qiqiliang/statistics/master/Suicide_Mortality_by_State.csv')
+```
+
+```{r}
+# Opioid Prescribing Rate by County
+
+opioid_prescription_rate <- read.csv('https://raw.githubusercontent.com/qiqiliang/statistics/master/US_County_Prescribing_Rates_Opioids.csv')
+```
+
+```{r}
+# VSRR Provisional Drug Overdose Death Counts
+
+overdose_death <- read.csv('https://raw.githubusercontent.com/qiqiliang/statistics/master/VSRR_Provisional_Drug_Overdose_Death_Counts.csv')
+```
 
 
 
