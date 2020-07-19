@@ -8,9 +8,13 @@ suicides <- read.csv('https://wisqars.cdc.gov:8443/cdcMapFramework/ExcelServlet?
 
 suicides <- suicides %>%
   slice(22:3159) %>%
-  select(- X_)
+  select(- X_) 
 
 opioid_avg_rate <- opioid_p_rate %>%
   group_by(County, State) %>%
-  summarise(
-            avg_prescr_rate = mean(Prescribing.Rate))
+  summarise(avg_prescr_rate = mean(Prescribing.Rate)) %>%
+  rename(ST = State) 
+
+opioid_and_suicide_rate <- left_join(suicides, opioid_avg_rate)
+
+write.csv(opioid_and_suicide_rate, "US_Suicide_and_Opioid_Prescription_Rates")
