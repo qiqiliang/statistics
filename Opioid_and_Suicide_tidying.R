@@ -15,6 +15,8 @@ opioid_avg_rate <- opioid_p_rate %>%
   summarise(avg_prescr_rate = mean(Prescribing.Rate)) %>%
   rename(ST = State) 
 
-opioid_and_suicide_rate <- left_join(suicides, opioid_avg_rate)
+opioid_and_suicide_rate <- left_join(suicides, opioid_avg_rate) %>%
+  select(-StateFIPS, -CountyFIPS) %>%
+  rename(avg_suicide_rate = U_C_Rate)
 
 write.csv(opioid_and_suicide_rate, "US_Suicide_and_Opioid_Prescription_Rates")
