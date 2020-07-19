@@ -6,7 +6,6 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
-library(tidytuesdayR)
 ```
 
 ***This is an example problem***
@@ -17,11 +16,17 @@ To test the conjecture, the study participants were randomly assigned to either 
 
 Let's use their data to test the conjecture that tea drinkers will have a stronger immune system response, on average, than coffee drinkers.
 
+# Suicide Rate average between 2008 and 2014 per 100,000 people
 
+# Opioid Prescription Rate average between 2005 and 2015 per 100 US Residents 
 
 ```{r message = FALSE}
 # Read in data
-immune <- read_csv("/home/courses/math141s20/Data/ImmuneTea.csv")
+opioid_and_suicide_rate <- read_csv('https://raw.githubusercontent.com/qiqiliang/statistics/master/US_Suicide_and_Opioid_Prescription_Rates')
+
+# Suicide Rate average between 2008 and 2014 per 100,000 people
+
+# Opioid Prescription Rate average between 2005 and 2015 per 100 US Residents 
 ```
 
 
@@ -55,12 +60,12 @@ c. Construct a graphic and compute summary statistics to explore the sample data
 
 *********************************************************************************
 ```{r}
-ggplot(data = immune, aes(x = Drink, y = InterferonGamma)) +
-  geom_boxplot(fill = "sienna")
-obs_diff_immune <- immune %>%
-  specify(InterferonGamma ~ Drink) %>%
-  calculate( stat = "diff in means", order = c("Tea", "Coffee"))
-obs_diff_immune
+# ggplot(data = immune, aes(x = Drink, y = InterferonGamma)) +
+#   geom_boxplot(fill = "sienna")
+# obs_diff_immune <- immune %>%
+#   specify(InterferonGamma ~ Drink) %>%
+#   calculate( stat = "diff in means", order = c("Tea", "Coffee"))
+# obs_diff_immune
 ```
 
 
@@ -73,12 +78,12 @@ d. Generate a null distribution.
 
 *********************************************************************************
 ```{r}
-null_immune_samples <- immune %>%
-  specify(response = InterferonGamma, explanatory = Drink) %>%
-  hypothesize(null = "independence") %>%
-  generate( reps = 10000, type = "permute")
-null_diff_means <- null_immune_samples %>% 
-  calculate(stat = "diff in means", order = c("Tea", "Coffee"))
+# null_immune_samples <- immune %>%
+#   specify(response = InterferonGamma, explanatory = Drink) %>%
+#   hypothesize(null = "independence") %>%
+#   generate( reps = 10000, type = "permute")
+# null_diff_means <- null_immune_samples %>% 
+#   calculate(stat = "diff in means", order = c("Tea", "Coffee"))
 # null_diff_means %>%
 #   visualize()+
 #   shade_p_value(obs_stat = obs_diff_immune, direction = "right")
@@ -92,8 +97,8 @@ e. Compute the p-value and make a conclusion about your original hypotheses.
 
 *********************************************************************************
 ```{r}
-null_diff_means %>%
-  get_p_value(obs_stat = obs_diff_immune, direction = "right")
+# null_diff_means %>%
+#   get_p_value(obs_stat = obs_diff_immune, direction = "right")
 ```
 Because the P value is less than alpha = 0.05, we can reject the null hypothesis 
 
