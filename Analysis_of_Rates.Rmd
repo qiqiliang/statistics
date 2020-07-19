@@ -1,0 +1,102 @@
+---
+title: "Analysis of Opioid Prescription and Suicide Rates"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(tidytuesdayR)
+```
+
+***This is an example problem***
+
+A [recent study](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC156317/) asked the question "Does tea provide better support for the immune system than coffee?"  Black tea contains L-theanaine, an amino acid that is thought to prime Gamma delta T cells, which are important cells for fending off infections.  
+
+To test the conjecture, the study participants were randomly assigned to either drink five or six cups of black tea or coffee every day for two weeks.  At the end of the two weeks, blood samples were exposed to an antigen and production of interferon gamma, the immune system response, was measured.  A higher production of interferon gamma implies a stronger immune system response.  
+
+Let's use their data to test the conjecture that tea drinkers will have a stronger immune system response, on average, than coffee drinkers.
+
+
+
+```{r message = FALSE}
+# Read in data
+immune <- read_csv("/home/courses/math141s20/Data/ImmuneTea.csv")
+```
+
+
+a. State the null and alternative hypotheses in symbols and in words.
+
+*********************************************************************************
+Null Hypothesis: Tea and coffee have the same effects on the immune system.
+$$H_0:  p_t = p_c  $$
+Alternate Hypothesis:  Tea will lead to a stronger immune system than coffee will. 
+$$H_a:  p_t  > p_c $$
+
+
+
+
+*********************************************************************************
+
+b. State what a Type I error and a Type II error represent in the context of the problem.
+
+*********************************************************************************
+ A Type I error represents tea and coffee having the same effects on the immune system but researchers saying otherwise due to an unlikely event in which tea and coffee showed having different effects on the immune system.  
+ A Type II error would be when tea and coffee actually have different effects on the immune system, but researchers did not reject the null hypothesis because unlikely events do occur. 
+
+
+
+*********************************************************************************
+
+
+c. Construct a graphic and compute summary statistics to explore the sample data.  Draw some initial conclusions based on your graph and summary statistics.
+
+
+
+*********************************************************************************
+```{r}
+ggplot(data = immune, aes(x = Drink, y = InterferonGamma)) +
+  geom_boxplot(fill = "sienna")
+obs_diff_immune <- immune %>%
+  specify(InterferonGamma ~ Drink) %>%
+  calculate( stat = "diff in means", order = c("Tea", "Coffee"))
+obs_diff_immune
+```
+
+
+
+
+*********************************************************************************
+
+
+d. Generate a null distribution.
+
+*********************************************************************************
+```{r}
+null_immune_samples <- immune %>%
+  specify(response = InterferonGamma, explanatory = Drink) %>%
+  hypothesize(null = "independence") %>%
+  generate( reps = 10000, type = "permute")
+null_diff_means <- null_immune_samples %>% 
+  calculate(stat = "diff in means", order = c("Tea", "Coffee"))
+# null_diff_means %>%
+#   visualize()+
+#   shade_p_value(obs_stat = obs_diff_immune, direction = "right")
+```
+
+
+*********************************************************************************
+ 
+
+e. Compute the p-value and make a conclusion about your original hypotheses.
+
+*********************************************************************************
+```{r}
+null_diff_means %>%
+  get_p_value(obs_stat = obs_diff_immune, direction = "right")
+```
+Because the P value is less than alpha = 0.05, we can reject the null hypothesis 
+
+
+*********************************************************************************
+
