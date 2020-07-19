@@ -57,6 +57,9 @@ hate_crimes <- readr::read_csv('https://raw.githubusercontent.com/fivethirtyeigh
 # The main thing I'm looking at.
 opioid_and_suicide_rate <- read_csv('https://raw.githubusercontent.com/qiqiliang/statistics/master/US_Suicide_and_Opioid_Prescription_Rates')
 
+# Suicide Rate average between 2008 and 2014 per 100,000 people
+
+# Opioid Prescription Rate average between 2005 and 2015 per 100 US Residents 
 ##############################################################################################################
 # optional content
 ##############################################################################################################
