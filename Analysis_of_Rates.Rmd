@@ -10,34 +10,47 @@ library(tidyverse)
 
 ***This is an example problem***
 
-A [recent study](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC156317/) asked the question "Does tea provide better support for the immune system than coffee?"  Black tea contains L-theanaine, an amino acid that is thought to prime Gamma delta T cells, which are important cells for fending off infections.  
+A [recent NPR article](https://www.npr.org/2020/07/17/887590699/doctors-and-dentists-still-flooding-u-s-with-opioid-prescriptions) noted that the U.S. is still being flooded with prescription opioid prescriptions by doctors and dentists. Upon reading the article, a friend pondered what the provided heat map for prescriptions would look like overlaid with suicide rates. This prompted the question "Is a larger rate of legal opioid prescription related to a higher rate of suicides?"  
 
-To test the conjecture, the study participants were randomly assigned to either drink five or six cups of black tea or coffee every day for two weeks.  At the end of the two weeks, blood samples were exposed to an antigen and production of interferon gamma, the immune system response, was measured.  A higher production of interferon gamma implies a stronger immune system response.  
+To test the conjecture, we found data from the CDC in relation to [suicide rates by county](https://wisqars.cdc.gov:8443/cdcMapFramework/mapModuleInterface.jsp), and [opioid prescription rate per county](https://www.cdc.gov/drugoverdose/maps/rxrate-maps.html). The suicide rate averages were calculated per 100,000 people between 2008 and 2014. The opioid prescription rate averages were calculated per 100 people between 2005 and 2015.  
 
-Let's use their data to test the conjecture that tea drinkers will have a stronger immune system response, on average, than coffee drinkers.
+# Check Problem Set 10 and Lab 11 for references to regression, correlation, and generating samples.
 
-# Suicide Rate average between 2008 and 2014 per 100,000 people
+What we can calculate: (This is two quantitative variables)
+ - proportion of suicides and opioid prescriptions by county population
+ - parameter of interest is regression slope $\beta$ and correlation $R$
+ - distribution statistic $\hat{\beta}$
+    - approximate $t$ value
+    - standard error
+Infer confidence interval to estimate $\beta_1$
+ - data %>% specify(suicide ~ opioid) %>%
+ - hypothesize(null = "independence") %>%
+ - generate(reps = 1000, type = "permute") %>%
+ - calculate(stat = "slope") %>%
+ - get_p_value(obs_stat = beta_1, direction = "both")
+ 
+Regression models
+  it is only appropriate to make predictions based on a regression model if:
+    
+  1. The data should show a linear trend.
+  
+  2. The distribution of residuals is approximately Normal.
+  
+  3. The residuals have constant variability.
+  
+# below is mostly the example, but above is the basic format for how we'll do this thing.
 
-# Opioid Prescription Rate average between 2005 and 2015 per 100 US Residents 
-
-```{r message = FALSE}
+```{r message = FALSE, warning = FALSE}
 # Read in data
-opioid_and_suicide_rate <- read_csv('https://raw.githubusercontent.com/qiqiliang/statistics/master/US_Suicide_and_Opioid_Prescription_Rates')
-
-# Suicide Rate average between 2008 and 2014 per 100,000 people
-
-# Opioid Prescription Rate average between 2005 and 2015 per 100 US Residents 
+opioid_and_suicide_rate <- read_csv('https://raw.githubusercontent.com/qiqiliang/statistics/master/US_Suicide_and_Opioid_Prescription_Rates') %>%
+  select(-X1)
 ```
 
 
-a. State the null and alternative hypotheses in symbols and in words.
-
 *********************************************************************************
-Null Hypothesis: Tea and coffee have the same effects on the immune system.
-$$H_0:  p_t = p_c  $$
-Alternate Hypothesis:  Tea will lead to a stronger immune system than coffee will. 
-$$H_a:  p_t  > p_c $$
-
+Null Hypothesis: There no correlation between opioid prescription rates and suicide rates.
+$$H_0: \quad \beta_O = \beta_S = 0$$
+Alternate Hypothesis:  There is correlation between opioid prescription rates and suicide rates. 
 
 
 
@@ -105,3 +118,9 @@ Because the P value is less than alpha = 0.05, we can reject the null hypothesis
 
 *********************************************************************************
 
+
+
+More questions to ask:
+ - Demographics????
+    - Ethnicity, Income
+    - Targeting marginalized communities?
