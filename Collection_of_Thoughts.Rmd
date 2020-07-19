@@ -55,22 +55,7 @@ hate_crimes <- readr::read_csv('https://raw.githubusercontent.com/fivethirtyeigh
 # 2008 - 2014 US Suicides Rates per 100,000 Population
 # All injury, suicide, all races, all ethnicities, both sexes, all ages. annualized crude rate for united states: 12.63
 # The main thing I'm looking at.
-
-# original website
-# https://wisqars.cdc.gov:8443/cdcMapFramework/mapModuleInterface.jsp
-suicides <- read.csv('https://wisqars.cdc.gov:8443/cdcMapFramework/ExcelServlet?excelFile=m4687721_csv')
-
-suicides <- suicides %>%
-  slice(22:3159) %>%
-  select(- X_)
-
-# Opioid Prescribing Rate by County
-# The main thing I'm looking at.
-
-# original website
-# https://www.cdc.gov/drugoverdose/maps/rxrate-maps.html
-opioid_prescription_rate <- read.csv('https://raw.githubusercontent.com/qiqiliang/statistics/master/US_County_Prescribing_Rates_Opioids.csv')
-
+opioid_and_suicide_rate <- read_csv('https://raw.githubusercontent.com/qiqiliang/statistics/master/US_Suicide_and_Opioid_Prescription_Rates')
 
 ##############################################################################################################
 # optional content

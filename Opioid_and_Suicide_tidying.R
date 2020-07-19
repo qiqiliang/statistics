@@ -2,7 +2,13 @@
 
 library(tidyverse)
 
+# original website
+# https://www.cdc.gov/drugoverdose/maps/rxrate-maps.html
+
 opioid_p_rate <- read.csv('https://raw.githubusercontent.com/qiqiliang/statistics/master/US_County_Prescribing_Rates_Opioids.csv')
+
+# original website
+# https://wisqars.cdc.gov:8443/cdcMapFramework/mapModuleInterface.jsp
 
 suicides <- read.csv('https://wisqars.cdc.gov:8443/cdcMapFramework/ExcelServlet?excelFile=m4687721_csv')
 
