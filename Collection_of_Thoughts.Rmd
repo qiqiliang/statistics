@@ -57,7 +57,7 @@ hate_crimes <- readr::read_csv('https://raw.githubusercontent.com/fivethirtyeigh
 # The main thing I'm looking at.
 
 # original website
-# https://www.cdc.gov/drugoverdose/maps/rxrate-maps.html
+# https://wisqars.cdc.gov:8443/cdcMapFramework/mapModuleInterface.jsp
 suicides <- read.csv('https://wisqars.cdc.gov:8443/cdcMapFramework/ExcelServlet?excelFile=m4687721_csv')
 
 suicides <- suicides %>%
@@ -68,7 +68,7 @@ suicides <- suicides %>%
 # The main thing I'm looking at.
 
 # original website
-# https://wisqars.cdc.gov:8443/cdcMapFramework/mapModuleInterface.jsp
+# https://www.cdc.gov/drugoverdose/maps/rxrate-maps.html
 opioid_prescription_rate <- read.csv('https://raw.githubusercontent.com/qiqiliang/statistics/master/US_County_Prescribing_Rates_Opioids.csv')
 
 
