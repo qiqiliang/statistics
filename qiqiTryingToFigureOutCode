@@ -1,0 +1,51 @@
+---
+title: "Association between Suicide Rates and Opioid Prescription Rates"
+date: "7/18/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+```{r}
+#Association between opioid prescription rate and suicide rate.
+# 2008 - 2014 US Suicides Rates per 100,000 Population
+# All injury, suicide, all races, all ethnicities, both sexes, all ages. annualized crude rate for united states: 12.63
+
+suicides <- read.csv('https://wisqars.cdc.gov:8443/cdcMapFramework/ExcelServlet?excelFile=m4687721_csv')
+suicides <- suicides %>%
+  slice(22:3159) %>%
+  select(- X_)
+
+# Opioid Prescribing Rate by County
+opioid_prescription_rate <- read.csv('https://raw.githubusercontent.com/qiqiliang/statistics/master/US_County_Prescribing_Rates_Opioids.csv')
+
+poverty_level <-read.csv("https://raw.githubusercontent.com/qiqiliang/statistics/master/poverty_level.csv")
+
+```
+
+```{r}
+suicides <- suicides %>%
+  filter(U_C_Rate != "") %>%
+  select(-StateFIPS,-CountyFIPS) %>%
+  rename(State = ST, av_suicide_rate = U_C_Rate)
+
+opioids <- opioid_prescription_rate %>%
+  filter(Prescribing.Rate != '-') %>%
+  group_by(County, State) %>%
+  select(-FIPS.County.Code) %>%
+  summarise(av_prescribing_rate = mean(Prescribing.Rate))
+
+
+total <- merge(suicides, opioids, by = c("County","State")) 
+  
+opioids_suicide_poverty <- merge(total, poverty_level, by = c("County", "State"))  
+```
+
+```{r}
+
+plot(total$av_suicide_rate, total$av_prescribing_rate, xlab = "Suicide Rate", ylab = "Prescribing Rate", pch = 20, col = "purple")
+
+```
