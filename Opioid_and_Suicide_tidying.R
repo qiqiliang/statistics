@@ -12,6 +12,7 @@ opioid_p_rate <- read.csv('https://raw.githubusercontent.com/qiqiliang/statistic
 
 suicides <- read.csv('https://wisqars.cdc.gov:8443/cdcMapFramework/ExcelServlet?excelFile=m4687721_csv')
 
+
 # original website
 # https://data.hrsa.gov/
 
@@ -30,7 +31,9 @@ opioid_avg_rate <- opioid_p_rate %>%
 
 opioid_and_suicide_rate <- left_join(suicides, opioid_avg_rate) 
   
-opioid_poverty_suicide_rate <- left_join(opioid_and_suicide_rate, poverty_rate) 
+opioid_poverty_suicide_rate <- left_join(opioid_and_suicide_rate, poverty_rate) %>%
+  filter(avg_suicide_rate != "") %>%
+  na.omit()
+  
 
-
-# write.csv(opioid_and_suicide_rate, "US_Suicide_and_Opioid_Prescription_Rates")
+write.csv(opioid_poverty_suicide_rate, "US_Suicide_Poverty_Opioid_Prescription_Rates")
