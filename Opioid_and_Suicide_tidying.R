@@ -20,7 +20,7 @@ poverty_rate <- read.csv('https://raw.githubusercontent.com/qiqiliang/statistics
 
 suicides <- suicides %>%
   slice(22:3159) %>%
-  select(- X_) %>%
+  select(- X_, -Deaths, -Population) %>%
   select(-StateFIPS, -CountyFIPS) %>%
   rename(Avg_Suicide_Rate = U_C_Rate) %>%
   rename(State = ST) 
