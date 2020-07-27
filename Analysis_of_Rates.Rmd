@@ -6,6 +6,8 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(infer)
+library(moderndive)
 ```
 
 ***This is an example problem***
@@ -43,8 +45,7 @@ Regression models
 ```{r message = FALSE, warning = FALSE}
 # Read in data
 spo_rate <- read_csv('https://raw.githubusercontent.com/qiqiliang/statistics/master/US_Suicide_Poverty_Opioid_Prescription_Rates') %>%
-  select(-X1) %>%
-  mutate(total_below_FPL = Num_Fam_Below_1.00x_FPL + Num_Fam_Below_1.50x_FPL + Num_Fam_Below_2.00x_FPL)
+  select(-X1)
 ```
 
 
@@ -60,8 +61,8 @@ Alternate Hypothesis:  There is correlation between suicide, poverty, and opioid
 b. State what a Type I error and a Type II error represent in the context of the problem.
 
 *********************************************************************************
- A Type I error represents tea and coffee having the same effects on the immune system but researchers saying otherwise due to an unlikely event in which tea and coffee showed having different effects on the immune system.  
- A Type II error would be when tea and coffee actually have different effects on the immune system, but researchers did not reject the null hypothesis because unlikely events do occur. 
+<!--  A Type I error represents tea and coffee having the same effects on the immune system but researchers saying otherwise due to an unlikely event in which tea and coffee showed having different effects on the immune system.   -->
+<!--  A Type II error would be when tea and coffee actually have different effects on the immune system, but researchers did not reject the null hypothesis because unlikely events do occur.  -->
 
 
 
@@ -74,14 +75,20 @@ c. Construct a graphic and compute summary statistics to explore the sample data
 
 *********************************************************************************
 ```{r}
-# ggplot(data = immune, aes(x = Drink, y = InterferonGamma)) +
-#   geom_boxplot(fill = "sienna")
-# obs_diff_immune <- immune %>%
-#   specify(InterferonGamma ~ Drink) %>%
-#   calculate( stat = "diff in means", order = c("Tea", "Coffee"))
-# obs_diff_immune
-```
+# ggplot(spo_rate, aes(x = avg_suicide_rate))+
+#   geom_bar()
+# 
+# ggplot(spo_rate, aes(x = avg_prescr_rate))+
+#   geom_bar()
 
+ggplot(spo_rate, aes(x = Avg_Prescr_Rate, y = Avg_Suicide_Rate)) +
+  geom_point(alpha = 0.3)+
+  geom_smooth(method = lm, se = FALSE) 
+m_so <- lm(Avg_Suicide_Rate ~ Avg_Prescr_Rate, data = spo_rate)
+get_regression_table(m_so)
+summary(m_so)
+```
+Opioid prescription rate may be a statistically significant predictor of suicide rate as the p value calculated is less than the significance level $\alpha = 0.05$. The linear model, however, does not seems to be too practical, as the adjusted $R^2$ value is only 0.0329. 
 
 
 
