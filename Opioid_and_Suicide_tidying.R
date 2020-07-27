@@ -16,24 +16,23 @@ suicides <- read.csv('https://wisqars.cdc.gov:8443/cdcMapFramework/ExcelServlet?
 # original website
 # https://data.hrsa.gov/
 
-poverty_rate <- read.csv('https://raw.githubusercontent.com/qiqiliang/statistics/master/poverty_level.csv')
+poverty_rate <- read.csv('https://raw.githubusercontent.com/qiqiliang/statistics/master/perc_poverty_dataset.csv')
 
 suicides <- suicides %>%
   slice(22:3159) %>%
   select(- X_) %>%
   select(-StateFIPS, -CountyFIPS) %>%
-  rename(avg_suicide_rate = U_C_Rate) %>%
+  rename(Avg_Suicide_Rate = U_C_Rate) %>%
   rename(State = ST) 
 
 opioid_avg_rate <- opioid_p_rate %>%
   group_by(County, State) %>%
-  summarise(avg_prescr_rate = mean(Prescribing.Rate)) 
+  summarise(Avg_Prescr_Rate = mean(Prescribing.Rate)) 
 
 opioid_and_suicide_rate <- left_join(suicides, opioid_avg_rate) 
   
 opioid_poverty_suicide_rate <- left_join(opioid_and_suicide_rate, poverty_rate) %>%
-  filter(avg_suicide_rate != "") %>%
+  filter(Avg_Suicide_Rate != "") %>%
   na.omit()
-  
 
 write.csv(opioid_poverty_suicide_rate, "US_Suicide_Poverty_Opioid_Prescription_Rates")
