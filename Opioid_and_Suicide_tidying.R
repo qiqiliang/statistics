@@ -10,7 +10,11 @@ opioid_p_rate <- read.csv('https://raw.githubusercontent.com/qiqiliang/statistic
 # original website
 # https://wisqars.cdc.gov:8443/cdcMapFramework/mapModuleInterface.jsp
 
-suicides <- read.csv('https://wisqars.cdc.gov:8443/cdcMapFramework/ExcelServlet?excelFile=m4687721_csv')
+suicides <- read.csv('https://wisqars.cdc.gov:8443/cdcMapFramework/ExcelServlet?excelFile=m4687721_csv')%>%
+  slice(22:3159)%>%
+  select(- X_, -Deaths, -Population, -StateFIPS, -CountyFIPS) %>%
+  rename(Avg_Suicide_Rate = U_C_Rate) %>%
+  rename(State = ST)
 
 
 # original website
@@ -18,12 +22,8 @@ suicides <- read.csv('https://wisqars.cdc.gov:8443/cdcMapFramework/ExcelServlet?
 
 poverty_rate <- read.csv('https://raw.githubusercontent.com/qiqiliang/statistics/master/perc_poverty_dataset.csv')
 
-suicides <- suicides %>%
-  slice(22:3159) %>%
-  select(- X_, -Deaths, -Population) %>%
-  select(-StateFIPS, -CountyFIPS) %>%
-  rename(Avg_Suicide_Rate = U_C_Rate) %>%
-  rename(State = ST) 
+suicides <- suicides  %>%
+  mutate_at('Avg_Suicide_Rate',as.numeric)
 
 opioid_avg_rate <- opioid_p_rate %>%
   group_by(County, State) %>%
