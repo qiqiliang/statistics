@@ -1,5 +1,5 @@
 ---
-title: "Analysis of Opioid Prescription and Suicide Rates"
+title: "Analysis of Opioid Prescription, Poverty, and Suicide Rates"
 output: html_document
 ---
 
@@ -10,13 +10,13 @@ library(tidyverse)
 
 ***This is an example problem***
 
-A [recent NPR article](https://www.npr.org/2020/07/17/887590699/doctors-and-dentists-still-flooding-u-s-with-opioid-prescriptions) noted that the U.S. is still being flooded with prescription opioid prescriptions by doctors and dentists. Upon reading the article, a friend pondered what the provided heat map for prescriptions would look like overlaid with suicide rates. This prompted the question "Is a larger rate of legal opioid prescription related to a higher rate of suicides?"  
+A [recent NPR article](https://www.npr.org/2020/07/17/887590699/doctors-and-dentists-still-flooding-u-s-with-opioid-prescriptions) noted that the U.S. is still being flooded with prescription opioid prescriptions by doctors and dentists. Upon reading the article, a friend pondered what the provided heat map for prescriptions would look like overlaid with suicide and poverty rates. This prompted the question "Is a larger rate of legal opioid prescription related to a higher rate of suicides and poverty?"  
 
-To test the conjecture, we found data from the CDC in relation to [suicide rates by county](https://wisqars.cdc.gov:8443/cdcMapFramework/mapModuleInterface.jsp), and [opioid prescription rate per county](https://www.cdc.gov/drugoverdose/maps/rxrate-maps.html). The suicide rate averages were calculated per 100,000 people between 2008 and 2014. The opioid prescription rate averages were calculated per 100 people between 2005 and 2015.  
+To test the conjecture, we found data from the CDC in relation to [suicide rates by county](https://wisqars.cdc.gov:8443/cdcMapFramework/mapModuleInterface.jsp), [poverty rates by county](https://data.hrsa.gov/tools/data-explorer?ds=29,34), and [opioid prescription rate per county](https://www.cdc.gov/drugoverdose/maps/rxrate-maps.html). The suicide rate averages were calculated per 100,000 people between 2008 and 2014. Poverty rates are percentages of families below the Federal Poverty Level between 2014 and 2018. The opioid prescription rate averages were calculated per 100 people between 2005 and 2015.  
 
 # Check Problem Set 10 and Lab 11 for references to regression, correlation, and generating samples.
 
-What we can calculate: (This is two quantitative variables)
+What we can calculate: (This is two+ quantitative variables)
  - proportion of suicides and opioid prescriptions by county population
  - parameter of interest is regression slope $\beta$ and correlation $R$
  - distribution statistic $\hat{\beta}$
@@ -42,15 +42,16 @@ Regression models
 
 ```{r message = FALSE, warning = FALSE}
 # Read in data
-opioid_and_suicide_rate <- read_csv('https://raw.githubusercontent.com/qiqiliang/statistics/master/US_Suicide_and_Opioid_Prescription_Rates') %>%
-  select(-X1)
+spo_rate <- read_csv('https://raw.githubusercontent.com/qiqiliang/statistics/master/US_Suicide_Poverty_Opioid_Prescription_Rates') %>%
+  select(-X1) %>%
+  mutate(total_below_FPL = Num_Fam_Below_1.00x_FPL + Num_Fam_Below_1.50x_FPL + Num_Fam_Below_2.00x_FPL)
 ```
 
 
 *********************************************************************************
-Null Hypothesis: There no correlation between opioid prescription rates and suicide rates.
-$$H_0: \quad \beta_O = \beta_S = 0$$
-Alternate Hypothesis:  There is correlation between opioid prescription rates and suicide rates. 
+Null Hypothesis: There no correlation between suicide, poverty, and opioid prescription rates.
+$$H_0: \quad \beta_S = \beta_P = \beta_O = 0$$
+Alternate Hypothesis:  There is correlation between suicide, poverty, and opioid prescription rates. 
 
 
 
