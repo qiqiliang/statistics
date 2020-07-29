@@ -100,7 +100,7 @@ m_sp1 <- lm(AvgP_Below_1.00x_FPL ~ Avg_Prescr_Rate, data = spo_rate)
 get_regression_table(m_sp1)
 summary(m_sp1)
 ```
-Opioid prescription rate may be a statistically significant predictor of suicide rate as the p value calculated is less than the significance level $\alpha = 0.05$. The linear model, however, does not seems to be too practical, as the adjusted $R^2$ value is 0.1608. 
+Opioid prescription rate may be a statistically significant predictor of the percentage of families below 1x the FPL as the p value calculated is less than the significance level $\alpha = 0.05$. The linear model, however, does not seems to be too practical, as the adjusted $R^2$ value is 0.1608. 
 
 ```{r}
 ggplot(spo_rate, aes(x = Avg_Prescr_Rate, y = AvgP_Below_1.50x_FPL)) +
@@ -111,7 +111,7 @@ get_regression_table(m_sp1_5)
 summary(m_sp1_5)
 ```
 
-Opioid prescription rate may be a statistically significant predictor of suicide rate as the p value calculated is less than the significance level $\alpha = 0.05$. The linear model, however, does not seems to be too practical, as the adjusted $R^2$ value is 0.159. 
+Opioid prescription rate may be a statistically significant predictor of the percentage of families below 1.5x the FPL as the p value calculated is less than the significance level $\alpha = 0.05$. The linear model, however, does not seems to be too practical, as the adjusted $R^2$ value is 0.159. 
 ```{r}
 ggplot(spo_rate, aes(x = Avg_Prescr_Rate, y = AvgP_Below_2.00x_FPL)) +
   geom_point(alpha = 0.3)+
@@ -120,6 +120,8 @@ m_sp2 <- lm(AvgP_Below_2.00x_FPL ~ Avg_Prescr_Rate, data = spo_rate)
 get_regression_table(m_sp2)
 summary(m_sp2)
 ```
+
+Opioid prescription rate may be a statistically significant predictor of the percentage of families below 2.0x the FPL as the p value calculated is less than the significance level $\alpha = 0.05$. The linear model, however, does not seems to be too practical, as the adjusted $R^2$ value is 0.1632. 
 
 
 *************************
