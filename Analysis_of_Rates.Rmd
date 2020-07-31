@@ -355,12 +355,41 @@ Run the following code to generate a bootstrap distribution for slopes.
     given your data set.
     
 ```{r}
-twins_boot<-twins %>% 
-  specify(Foster ~ Biological) %>% 
+so_boot <- spo_rate %>% 
+  specify(Avg_Suicide_Rate ~ Avg_Prescr_Rate) %>%
   generate(reps = 1000, type = "bootstrap") %>% 
   calculate(stat = "slope")
 
-twins_boot %>%
+so_boot %>%
+  get_ci(level = 0.95, type = "percentile")
+```
+```{r}
+sp1_boot <- spo_rate %>% 
+  specify(AvgP_Below_1.00x_FPL ~ Avg_Prescr_Rate) %>%
+  generate(reps = 1000, type = "bootstrap") %>% 
+  calculate(stat = "slope")
+
+sp1_boot %>%
+  get_ci(level = 0.95, type = "percentile")
+```
+
+```{r}
+sp1_5_boot <- spo_rate %>% 
+  specify(AvgP_Below_1.50x_FPL ~ Avg_Prescr_Rate) %>%
+  generate(reps = 1000, type = "bootstrap") %>% 
+  calculate(stat = "slope")
+
+sp1_5_boot %>%
+  get_ci(level = 0.95, type = "percentile")
+```
+
+```{r}
+sp2_boot <- spo_rate %>% 
+  specify(AvgP_Below_2.00x_FPL ~ Avg_Prescr_Rate) %>%
+  generate(reps = 1000, type = "bootstrap") %>% 
+  calculate(stat = "slope")
+
+sp2_boot %>%
   get_ci(level = 0.95, type = "percentile")
 ```
 
