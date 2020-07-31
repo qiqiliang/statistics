@@ -29,7 +29,7 @@ per 100 persons per year between 2005 and 2015.
 
 # So far, we have performed individual and multiple regression analysis of all the variables against average 
 # prescription rate of opioid. The next step is to look into individual relationships just cause it basic and 
-# outlined below for us. 
+# outlined below for us. Chi-squared tests?
 
 ## Check Problem Set 10 and Lab 11 for references to regression, correlation, and generating samples.
 
@@ -72,7 +72,8 @@ Alternate Hypothesis:  There is correlation between suicide, poverty, and opioid
 
 *********************************************************************************
 
-b. State what a Type I error (reject $H_0$ due to unlikely event) and a Type II (reject $H_A$ due to mistaking for unlikely event) error represent in the context of the problem.
+b. State what a Type I error (reject $H_0$ due to unlikely event) and a Type II 
+(reject $H_A$ due to mistaking for unlikely event) error represent in the context of the problem.
 
 *********************************************************************************
  A Type I error represents having some correlation between suicide, poverty, and opioid prescription rates but 
@@ -84,7 +85,8 @@ b. State what a Type I error (reject $H_0$ due to unlikely event) and a Type II 
 *********************************************************************************
 
 
-c. Construct a graphic and compute summary statistics to explore the sample data.  Draw some initial conclusions based on your graph and summary statistics.
+c. Construct a graphic and compute summary statistics to explore the sample data.  
+Draw some initial conclusions based on your graph and summary statistics.
 
 
 
@@ -96,10 +98,14 @@ ggplot(spo_rate, aes(x = Avg_Prescr_Rate, y = Avg_Suicide_Rate)) +
 
 m_so <- lm(Avg_Suicide_Rate ~ Avg_Prescr_Rate, data = spo_rate)
 
-get_regression_points(m_so) %>% 
-  ggplot( aes(x =Avg_Prescr_Rate, y = residual) )+
-    geom_point() +
-    geom_smooth(method = "lm", se = FALSE)
+m_so_rp <- get_regression_points(m_so) 
+
+ggplot(m_so_rp, aes(x =Avg_Prescr_Rate, y = residual) )+
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+
+ggplot(m_so_rp, aes(x = residual) )+
+  geom_histogram(binwidth = 1, col = "white")
 
 get_regression_table(m_so)
 summary(m_so)
@@ -107,7 +113,9 @@ summary(m_so)
 b1_so <- 0.031532
 ```
 
-Opioid prescription rate may be a statistically significant predictor of suicide rate as the p value calculated is less than the significance level $\alpha = 0.05$. The linear model, however, does not seems to be too practical, as the adjusted $R^2$ value is only 0.06084. 
+Opioid prescription rate may be a statistically significant predictor of suicide rate as the p value 
+calculated is less than the significance level $\alpha = 0.05$. The linear model, however, does not 
+seems to be too practical, as the adjusted $R^2$ value is only 0.06084. 
 
 ```{r}
 ggplot(spo_rate, aes(x = Avg_Prescr_Rate, y = AvgP_Below_1.00x_FPL)) +
@@ -116,17 +124,23 @@ ggplot(spo_rate, aes(x = Avg_Prescr_Rate, y = AvgP_Below_1.00x_FPL)) +
 
 m_sp1 <- lm(AvgP_Below_1.00x_FPL ~ Avg_Prescr_Rate, data = spo_rate)
 
-get_regression_points(m_sp1) %>% 
-  ggplot( aes(x =Avg_Prescr_Rate, y = residual) )+
-    geom_point() +
-    geom_smooth(method = "lm", se = FALSE)
+m_sp1_rp <- get_regression_points(m_sp1)  
+
+ggplot(m_sp1_rp, aes(x =Avg_Prescr_Rate, y = residual) )+
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+
+ggplot(m_sp1_rp, aes(x = residual) )+
+  geom_histogram(binwidth = 1, col = "white")
 
 get_regression_table(m_sp1)
 summary(m_sp1)
 
 b1_sp1 <- 0.044857
 ```
-Opioid prescription rate may be a statistically significant predictor of the percentage of families below 1x the FPL as the p value calculated is less than the significance level $\alpha = 0.05$. The linear model, however, does not seems to be too practical, as the adjusted $R^2$ value is 0.1608. 
+Opioid prescription rate may be a statistically significant predictor of the percentage of 
+families below 1x the FPL as the p value calculated is less than the significance level 
+$\alpha = 0.05$. The linear model, however, does not seems to be too practical, as the adjusted $R^2$ value is 0.1608. 
 
 ```{r}
 ggplot(spo_rate, aes(x = Avg_Prescr_Rate, y = AvgP_Below_1.50x_FPL)) +
@@ -135,10 +149,13 @@ ggplot(spo_rate, aes(x = Avg_Prescr_Rate, y = AvgP_Below_1.50x_FPL)) +
 
 m_sp1_5 <- lm(AvgP_Below_1.50x_FPL ~ Avg_Prescr_Rate, data = spo_rate)
 
-get_regression_points(m_sp1_5) %>% 
-  ggplot( aes(x =Avg_Prescr_Rate, y = residual) )+
-    geom_point() +
-    geom_smooth(method = "lm", se = FALSE)
+m_sp1_5_rp <- get_regression_points(m_sp1_5)  
+ggplot(m_sp1_5_rp, aes(x = Avg_Prescr_Rate, y = residual) )+
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+
+ggplot(m_sp1_5_rp, aes(x = residual) )+
+  geom_histogram(binwidth = 1, col = "white")
 
 get_regression_table(m_sp1_5)
 summary(m_sp1_5)
@@ -146,7 +163,9 @@ summary(m_sp1_5)
 b1_sp1_5 <- 0.067001
 ```
 
-Opioid prescription rate may be a statistically significant predictor of the percentage of families below 1.5x the FPL as the p value calculated is less than the significance level $\alpha = 0.05$. The linear model, however, does not seems to be too practical, as the adjusted $R^2$ value is 0.159. 
+Opioid prescription rate may be a statistically significant predictor of the percentage of families 
+below 1.5x the FPL as the p value calculated is less than the significance level $\alpha = 0.05$. 
+The linear model, however, does not seems to be too practical, as the adjusted $R^2$ value is 0.159. 
 ```{r}
 ggplot(spo_rate, aes(x = Avg_Prescr_Rate, y = AvgP_Below_2.00x_FPL)) +
   geom_point(alpha = 0.3)+
@@ -154,13 +173,19 @@ ggplot(spo_rate, aes(x = Avg_Prescr_Rate, y = AvgP_Below_2.00x_FPL)) +
 
 m_sp2 <- lm(AvgP_Below_2.00x_FPL ~ Avg_Prescr_Rate, data = spo_rate)
 
-get_regression_points(m_sp2) %>% 
-  ggplot( aes(x =Avg_Prescr_Rate, y = residual) )+
-    geom_point() +
-    geom_smooth(method = "lm", se = FALSE)
+m_sp2_rp <- get_regression_points(m_sp2) 
+
+ggplot(m_sp2_rp, aes(x =Avg_Prescr_Rate, y = residual) )+
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+
+ggplot(m_sp2_rp, aes(x = residual) )+
+  geom_histogram(binwidth = 1, col = "white")
 
 get_regression_table(m_sp2)
 summary(m_sp2)
+
+b1_sp2 <- 0.086358
 ```
 
 
@@ -180,7 +205,9 @@ settle on.
 
 
 ```{r}
-m_full <- lm(Avg_Prescr_Rate ~ AvgP_Below_2.00x_FPL + AvgP_Below_1.50x_FPL + AvgP_Below_1.00x_FPL + Avg_Suicide_Rate, data = spo_rate)
+m_full <- lm(Avg_Prescr_Rate ~ AvgP_Below_2.00x_FPL + 
+               AvgP_Below_1.50x_FPL + AvgP_Below_1.00x_FPL + 
+               Avg_Suicide_Rate, data = spo_rate)
 
 get_regression_table(m_full)
 get_regression_summaries(m_full)
@@ -209,7 +236,9 @@ $$\begin{aligned} \widehat{Avg\_Prescr\_Rate} &= 30.648 + 3.410 \times AvgP\_Bel
 
 The interpretation of the coefficients in multiple regression is
 slightly different from that of simple regression. The estimate for
-`AvgP_Below_1.00x_FPL` reflects how many more prescriptions a county is expected to have received if they have percentage of families under two times the FPL that is one point higher *while
+`AvgP_Below_1.00x_FPL` reflects how many more prescriptions a county is 
+expected to have received if they have percentage of families under two 
+times the FPL that is one point higher *while
 holding all other variables constant*. In this case, that translates
 into considering only counties of the same rank with `AvgP_Below_1.00x_FPL` scores
 that are one percent apart.
@@ -239,41 +268,121 @@ Regression models
   2. The distribution of residuals is approximately Normal.
   
   3. The residuals have constant variability.
+ 
+ 
+ 
+ 
+ 
   
-
-
-
-
-
-
 d. Generate a null distribution.
 
 *********************************************************************************
+
+Run the following code to generate a null distribution for slopes, assuming
+    Suicide Rate and Prescription Rate are independent. Then use `infer` to visualize
+    the distribution and compute the p_value. Compare the P-value you get here
+    to the one given for slope in the regression table above.
+    
 ```{r}
-# null_immune_samples <- immune %>%
-#   specify(response = InterferonGamma, explanatory = Drink) %>%
-#   hypothesize(null = "independence") %>%
-#   generate( reps = 10000, type = "permute")
-# null_diff_means <- null_immune_samples %>% 
-#   calculate(stat = "diff in means", order = c("Tea", "Coffee"))
-# null_diff_means %>%
-#   visualize()+
-#   shade_p_value(obs_stat = obs_diff_immune, direction = "right")
+so_null <- spo_rate %>% 
+  specify(Avg_Suicide_Rate ~ Avg_Prescr_Rate) %>%
+  hypothesize(null = "independence") %>%
+  generate(reps = 1000, type = "permute") %>%
+  calculate(stat = "slope") 
+
+so_null %>%
+  visualize() + 
+  shade_p_value(obs_stat = b1_so, direction = "both")
+so_null %>%
+  get_p_value(obs_stat = b1_so, direction = "both")
+```
+
+```{r}
+sp1_null <- spo_rate %>% 
+  specify(AvgP_Below_1.00x_FPL ~ Avg_Prescr_Rate) %>%
+  hypothesize(null = "independence") %>%
+  generate(reps = 1000, type = "permute") %>%
+  calculate(stat = "slope") 
+
+sp1_null %>%
+  visualize() + 
+  shade_p_value(obs_stat = b1_sp1, direction = "both")
+sp1_null %>%
+  get_p_value(obs_stat = b1_sp1, direction = "both")
+```
+
+```{r}
+sp1_5_null <- spo_rate %>% 
+  specify(AvgP_Below_1.50x_FPL ~ Avg_Prescr_Rate) %>%
+  hypothesize(null = "independence") %>%
+  generate(reps = 1000, type = "permute") %>%
+  calculate(stat = "slope") 
+
+sp1_5_null %>%
+  visualize() + 
+  shade_p_value(obs_stat = b1_sp1_5, direction = "both")
+sp1_5_null %>%
+  get_p_value(obs_stat = b1_sp1_5, direction = "both")
+```
+
+```{r}
+sp2_null <- spo_rate %>% 
+  specify(AvgP_Below_2.00x_FPL ~ Avg_Prescr_Rate) %>%
+  hypothesize(null = "independence") %>%
+  generate(reps = 1000, type = "permute") %>%
+  calculate(stat = "slope") 
+
+sp2_null %>%
+  visualize() + 
+  shade_p_value(obs_stat = b1_sp2, direction = "both")
+sp2_null %>%
+  get_p_value(obs_stat = b1_sp2, direction = "both")
+```
+
+If the null hypothesis were true, then the observed slope does not seem plausible because it is an extreme value rather than a more expected value near the center of the distribution. The P-value, assuming a significance level of $\alpha = 0.05$, is 0 when rounded to the thousandth, which means we can reject the null-hypothesis and test for aspects of the alternative. The P-value here and the one generated by the linear regression above is the same when rounded to the thousandth.
+
+
+
+e. Generate a bootstrap distribution.
+
+*********************************************************************************
+
+
+Run the following code to generate a bootstrap distribution for slopes. 
+    Then use `infer` and the percentile method to create a 95% confidence interval
+    on your slope. Compare the confidence interval here to the one given in the
+    regression table above. Finally, assess whether this claim is reasonable
+    given your data set.
+    
+```{r}
+twins_boot<-twins %>% 
+  specify(Foster ~ Biological) %>% 
+  generate(reps = 1000, type = "bootstrap") %>% 
+  calculate(stat = "slope")
+
+twins_boot %>%
+  get_ci(level = 0.95, type = "percentile")
 ```
 
 
-*********************************************************************************
- 
-
-e. Compute the p-value and make a conclusion about your original hypotheses.
+f. Consider Poverty Level as one variable (2x, 1.5x, 1x)
 
 *********************************************************************************
+Now consider how the association between suicide rate and opioid prescription rate would change if poverty brackets were taken into account. Create a plot to illustrate the
+    relationship between all three variables (recall the use of the
+    `color` argument in `aes()`). Just by looking at the plot and
+    without fitting any models, does it appear that the relationship
+    between the suicide rate and opioid prescription rate is the same for higher poverty counties as it is
+    for lower poverty counties?
+
 ```{r}
-# null_diff_means %>%
-#   get_p_value(obs_stat = obs_diff_immune, direction = "right")
-```
-Because the P value is less than alpha = 0.05, we can reject the null hypothesis 
+# adding a column for largest poverty bracket
+spo_rate_op <- spo_rate %>%
+  mutate() # need to finish.
 
+ggplot(spo_rate_op, aes(x = Biological , y = Foster, color = Social))+ 
+  geom_point() 
+```
 
 *********************************************************************************
 
