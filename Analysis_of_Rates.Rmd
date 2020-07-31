@@ -1,5 +1,5 @@
 ---
-title: "Analysis of Opioid Prescription, Poverty, and Suicide Rates"
+title: "Analysis of Opioid Prescription, Poverty, and Suicide Levels"
 output: html_document
 ---
 
@@ -12,13 +12,26 @@ library(moderndive)
 
 ***This is an example problem***
 
-A [recent NPR article](https://www.npr.org/2020/07/17/887590699/doctors-and-dentists-still-flooding-u-s-with-opioid-prescriptions) noted that the U.S. is still being flooded with prescription opioid prescriptions by doctors and dentists. Upon reading the article, a friend pondered what the provided heat map for prescriptions would look like overlaid with suicide and poverty rates. This prompted the question "Is a larger rate of legal opioid prescription related to a higher rate of suicides and poverty?"  
+A [recent NPR article]
+(https://www.npr.org/2020/07/17/887590699/doctors-and-dentists-still-flooding-u-s-with-opioid-prescriptions) 
+noted that the U.S. is still being flooded with prescription opioid prescriptions by doctors and dentists. 
+Upon reading the article, a friend pondered what the provided heat map for prescriptions would look like overlaid 
+with suicide and poverty rates. This prompted the question "Is a larger rate of legal opioid prescription related 
+to a higher rate of suicides and poverty?"  
 
-To test the conjecture, we found data from the CDC in relation to [suicide rates by county](https://wisqars.cdc.gov:8443/cdcMapFramework/mapModuleInterface.jsp), [poverty rates by county](https://data.hrsa.gov/tools/data-explorer?ds=29,34), and [opioid prescription rate per county](https://www.cdc.gov/drugoverdose/maps/rxrate-maps.html). The suicide rate averages were calculated per 100,000 people between 2008 and 2014. Poverty rates are percentages of families in the county below intervals of the Federal Poverty Level between 2014 and 2018. The opioid prescription rate averages were calculated per 100 people between 2005 and 2015.  
+To test the conjecture, we found data from the CDC in relation to 
+[suicide rates by county](https://wisqars.cdc.gov:8443/cdcMapFramework/mapModuleInterface.jsp), 
+[poverty rates by county](https://data.hrsa.gov/tools/data-explorer?ds=29,34), and 
+[opioid prescription rate per county](https://www.cdc.gov/drugoverdose/maps/rxrate-maps.html). 
+The suicide rate averages were calculated per 100,000 people between 2008 and 2014. Poverty rates 
+are percentages of families in the county below intervals of the Federal Poverty Level between 2014 
+and 2018. The opioid prescription rate averages were calculated per 100 people between 2005 and 2015.  
 
-## So far, we have performed individual and multiple regression analysis of all the variables against average prescription rate of opioid. The next step is to look into individual relationships just cause it basic and outlined below for us. 
+# So far, we have performed individual and multiple regression analysis of all the variables against average 
+# prescription rate of opioid. The next step is to look into individual relationships just cause it basic and 
+# outlined below for us. 
 
-# Check Problem Set 10 and Lab 11 for references to regression, correlation, and generating samples.
+## Check Problem Set 10 and Lab 11 for references to regression, correlation, and generating samples.
 
 What we can calculate: (This is two quantitative variables)
  - proportion of suicides and opioid prescriptions by county population
@@ -42,7 +55,8 @@ Regression models
   
   3. The residuals have constant variability.
   
-# below is mostly the example, but above is the basic format for how we'll do this thing if we analyze one variable at a time against opioid prescription rates. We also have the multiple regression analysis below.
+### below is mostly the example, but above is the basic format for how we'll do this thing if we 
+###analyze one variable at a time against opioid prescription rates. We also have the multiple regression analysis below.
 
 ```{r message = FALSE, warning = FALSE}
 # Read in data
@@ -60,11 +74,14 @@ Alternate Hypothesis:  There is correlation between suicide, poverty, and opioid
 
 *********************************************************************************
 
-b. State what a Type I error and a Type II error represent in the context of the problem.
+b. State what a Type I error (reject $H_0$ due to unlikely event) and a Type II (reject $H_A$ due to mistaking for unlikely event) error represent in the context of the problem.
 
 *********************************************************************************
-<!--  A Type I error represents tea and coffee having the same effects on the immune system but researchers saying otherwise due to an unlikely event in which tea and coffee showed having different effects on the immune system.   -->
-<!--  A Type II error would be when tea and coffee actually have different effects on the immune system, but researchers did not reject the null hypothesis because unlikely events do occur.  -->
+ A Type I error represents having some correlation between suicide, poverty, and opioid prescription rates but 
+ saying otherwise due to an unlikely event in which all values have had similar spikes over the years 
+ (this is BS and should totally be looked at).
+ A Type II error would be having no correlation between suicide, poverty, and opioid prescription rates but 
+ saying otherwise due to...
 
 
 
@@ -77,16 +94,17 @@ c. Construct a graphic and compute summary statistics to explore the sample data
 
 *********************************************************************************
 ```{r}
-# ggplot(spo_rate, aes(x = avg_suicide_rate))+
-#   geom_bar()
-# 
-# ggplot(spo_rate, aes(x = avg_prescr_rate))+
-#   geom_bar()
-
 ggplot(spo_rate, aes(x = Avg_Prescr_Rate, y = Avg_Suicide_Rate)) +
   geom_point(alpha = 0.3)+
   geom_smooth(method = lm, se = FALSE) 
+
 m_so <- lm(Avg_Suicide_Rate ~ Avg_Prescr_Rate, data = spo_rate)
+
+get_regression_points(m_so) %>% 
+  ggplot( aes(x =Avg_Prescr_Rate, y = residual) )+
+    geom_point() +
+    geom_smooth(method = "lm", se = FALSE)
+
 get_regression_table(m_so)
 summary(m_so)
 ```
@@ -96,7 +114,14 @@ Opioid prescription rate may be a statistically significant predictor of suicide
 ggplot(spo_rate, aes(x = Avg_Prescr_Rate, y = AvgP_Below_1.00x_FPL)) +
   geom_point(alpha = 0.3)+
   geom_smooth(method = lm, se = FALSE) 
+
 m_sp1 <- lm(AvgP_Below_1.00x_FPL ~ Avg_Prescr_Rate, data = spo_rate)
+
+get_regression_points(m_sp1) %>% 
+  ggplot( aes(x =Avg_Prescr_Rate, y = residual) )+
+    geom_point() +
+    geom_smooth(method = "lm", se = FALSE)
+
 get_regression_table(m_sp1)
 summary(m_sp1)
 ```
@@ -106,7 +131,14 @@ Opioid prescription rate may be a statistically significant predictor of the per
 ggplot(spo_rate, aes(x = Avg_Prescr_Rate, y = AvgP_Below_1.50x_FPL)) +
   geom_point(alpha = 0.3)+
   geom_smooth(method = lm, se = FALSE) 
+
 m_sp1_5 <- lm(AvgP_Below_1.50x_FPL ~ Avg_Prescr_Rate, data = spo_rate)
+
+get_regression_points(m_sp1_5) %>% 
+  ggplot( aes(x =Avg_Prescr_Rate, y = residual) )+
+    geom_point() +
+    geom_smooth(method = "lm", se = FALSE)
+
 get_regression_table(m_sp1_5)
 summary(m_sp1_5)
 ```
@@ -116,12 +148,85 @@ Opioid prescription rate may be a statistically significant predictor of the per
 ggplot(spo_rate, aes(x = Avg_Prescr_Rate, y = AvgP_Below_2.00x_FPL)) +
   geom_point(alpha = 0.3)+
   geom_smooth(method = lm, se = FALSE) 
+
 m_sp2 <- lm(AvgP_Below_2.00x_FPL ~ Avg_Prescr_Rate, data = spo_rate)
+
+get_regression_points(m_sp2) %>% 
+  ggplot( aes(x =Avg_Prescr_Rate, y = residual) )+
+    geom_point() +
+    geom_smooth(method = "lm", se = FALSE)
+
+get_regression_table(m_sp2)
+summary(m_sp2)
+```
+```{r}
+ggplot(spo_rate, aes(y = Avg_Prescr_Rate, x = Avg_Suicide_Rate)) +
+  geom_point()+
+  geom_smooth(method = lm, se = FALSE) 
+
+m_so <- lm(Avg_Prescr_Rate ~ Avg_Suicide_Rate, data = spo_rate)
+
+get_regression_points(m_so) %>% 
+  ggplot( aes(x =Avg_Prescr_Rate, y = residual) )+
+    geom_point() +
+    geom_smooth(method = "lm", se = FALSE)
+
+get_regression_table(m_so)
+summary(m_so)
+```
+Opioid prescription rate may be a statistically significant predictor of suicide rate as the p value calculated is less than the significance level $\alpha = 0.05$. The linear model, however, does not seems to be too practical, as the adjusted $R^2$ value is only 0.06084. 
+
+```{r}
+ggplot(spo_rate, aes(x = Avg_Prescr_Rate, y = AvgP_Below_1.00x_FPL)) +
+  geom_point(alpha = 0.3)+
+  geom_smooth(method = lm, se = FALSE) 
+
+m_sp1 <- lm(AvgP_Below_1.00x_FPL ~ Avg_Prescr_Rate, data = spo_rate)
+
+get_regression_points(m_sp1) %>% 
+  ggplot( aes(x =Avg_Prescr_Rate, y = residual) )+
+    geom_point() +
+    geom_smooth(method = "lm", se = FALSE)
+
+get_regression_table(m_sp1)
+summary(m_sp1)
+```
+Opioid prescription rate may be a statistically significant predictor of the percentage of families below 1x the FPL as the p value calculated is less than the significance level $\alpha = 0.05$. The linear model, however, does not seems to be too practical, as the adjusted $R^2$ value is 0.1608. 
+
+```{r}
+ggplot(spo_rate, aes(x = Avg_Prescr_Rate, y = AvgP_Below_1.50x_FPL)) +
+  geom_point(alpha = 0.3)+
+  geom_smooth(method = lm, se = FALSE) 
+
+m_sp1_5 <- lm(AvgP_Below_1.50x_FPL ~ Avg_Prescr_Rate, data = spo_rate)
+
+get_regression_points(m_sp1_5) %>% 
+  ggplot( aes(x =Avg_Prescr_Rate, y = residual) )+
+    geom_point() +
+    geom_smooth(method = "lm", se = FALSE)
+
+get_regression_table(m_sp1_5)
+summary(m_sp1_5)
+```
+
+Opioid prescription rate may be a statistically significant predictor of the percentage of families below 1.5x the FPL as the p value calculated is less than the significance level $\alpha = 0.05$. The linear model, however, does not seems to be too practical, as the adjusted $R^2$ value is 0.159. 
+```{r}
+ggplot(spo_rate, aes(x = Avg_Prescr_Rate, y = AvgP_Below_2.00x_FPL)) +
+  geom_point(alpha = 0.3)+
+  geom_smooth(method = lm, se = FALSE) 
+
+m_sp2 <- lm(AvgP_Below_2.00x_FPL ~ Avg_Prescr_Rate, data = spo_rate)
+
+get_regression_points(m_sp2) %>% 
+  ggplot( aes(x =Avg_Prescr_Rate, y = residual) )+
+    geom_point() +
+    geom_smooth(method = "lm", se = FALSE)
+
 get_regression_table(m_sp2)
 summary(m_sp2)
 ```
 
-Opioid prescription rate may be a statistically significant predictor of the percentage of families below 2.0x the FPL as the p value calculated is less than the significance level $\alpha = 0.05$. The linear model, however, does not seems to be too practical, as the adjusted $R^2$ value is 0.1632. 
+Opioid prescription rate may be a statistically significant predictor of the percentage of families below 2.0x the FPL as the p value calculated is less than the significance level $\alpha = 0.05$. The linear model, however, does not seems to be too practical, as the adjusted $R^2$ value is 0.1632.  
 
 
 *************************
@@ -173,6 +278,8 @@ slightly different from that of simple regression. The estimate for
 holding all other variables constant*. In this case, that translates
 into considering only counties of the same rank with `AvgP_Below_1.00x_FPL` scores
 that are one percent apart.
+
+
 *********************************************************************************
 
 
