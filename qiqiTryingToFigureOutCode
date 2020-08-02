@@ -7,6 +7,10 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(ggplot2)
+library(dplyr)
+library(moderndive)
+library(infer)
 ```
 
 ```{r}
@@ -14,6 +18,7 @@ library(tidyverse)
 # 2008 - 2014 US Suicides Rates per 100,000 Population
 # All injury, suicide, all races, all ethnicities, both sexes, all ages. annualized crude rate for united states: 12.63
 
+#Raw suicides data
 suicides <- read.csv('https://wisqars.cdc.gov:8443/cdcMapFramework/ExcelServlet?excelFile=m4687721_csv')
 suicides <- suicides %>%
   slice(22:3159) %>%
@@ -22,30 +27,123 @@ suicides <- suicides %>%
 # Opioid Prescribing Rate by County
 opioid_prescription_rate <- read.csv('https://raw.githubusercontent.com/qiqiliang/statistics/master/US_County_Prescribing_Rates_Opioids.csv')
 
-poverty_level <-read.csv("https://raw.githubusercontent.com/qiqiliang/statistics/master/poverty_level.csv")
+#Raw poverty level data
+poverty_level <-read.csv("https://raw.githubusercontent.com/qiqiliang/statistics/master/perc_poverty_dataset.csv")
+
 
 ```
 
 ```{r}
+#Tidying up the suicide dataset
 suicides <- suicides %>%
   filter(U_C_Rate != "") %>%
-  select(-StateFIPS,-CountyFIPS) %>%
+  select(-StateFIPS,-CountyFIPS, -Population, -Deaths) %>%
   rename(State = ST, av_suicide_rate = U_C_Rate)
 
+suicides <- suicides %>%
+  mutate_at('av_suicide_rate', as.numeric) #Changing average suicide rate to a double
+  
+#Tidying up opioid dataset
 opioids <- opioid_prescription_rate %>%
   filter(Prescribing.Rate != '-') %>%
   group_by(County, State) %>%
   select(-FIPS.County.Code) %>%
   summarise(av_prescribing_rate = mean(Prescribing.Rate))
 
-
-total <- merge(suicides, opioids, by = c("County","State")) 
+#Finding the maximum poverty and merging that dataset with old poverty dataset to create new poverty dataset
+max_FPL <- poverty_level %>%
+  select('AvgP_Below_1.00x_FPL', 'AvgP_Below_1.50x_FPL', 'AvgP_Below_2.00x_FPL')
   
-opioids_suicide_poverty <- merge(total, poverty_level, by = c("County", "State"))  
+new_max_FPL <- mutate(max_FPL, max_avgP_FPL = do.call(pmax, max_FPL))
+
+new_poverty <- merge(poverty_level, new_max_FPL, by = c('AvgP_Below_1.00x_FPL', 'AvgP_Below_1.50x_FPL', 'AvgP_Below_2.00x_FPL'))
+
+
+#Merging the suicide and opioid dataset
+total <- merge(suicides, opioids, by = c("County","State")) 
+
+#Merging all the datasets together
+opioids_suicide_poverty <- merge(total, new_poverty, by = c("County", "State"))  
+
 ```
 
 ```{r}
+#Plot of prescribing rate vs. suicide rate
+ggplot(opioids_suicide_poverty, aes(av_prescribing_rate, av_suicide_rate)) + geom_point(size = 1, shape = 21) + geom_smooth(method = "lm", se = FALSE)
+#Stats about best fit line on plot
+stats1 <- lm(av_suicide_rate ~ av_prescribing_rate, data = opioids_suicide_poverty)
+#Regression table based on best fit line of plot
+get_regression_table(stats1)
+#More summary statistics of best fit line on plot
+summary(stats1)
 
-plot(total$av_suicide_rate, total$av_prescribing_rate, xlab = "Suicide Rate", ylab = "Prescribing Rate", pch = 20, col = "purple")
+#Residual plot
+get_regression_points(stats1) %>%
+  ggplot(aes(av_prescribing_rate, residual)) + geom_point() + geom_smooth(method = "lm", se = FALSE)
+
+#Residual distribution
+get_regression_points(stats1) %>%
+  ggplot(aes(x = residual)) + geom_histogram(bins = 70, col = "white")
 
 ```
+
+```{r}
+#Plot of prescribing rate vs average percentage of families 1x below FPL
+ggplot(opioids_suicide_poverty, aes(av_prescribing_rate, AvgP_Below_1.00x_FPL)) + geom_point(size = 1, shape = 21) + geom_smooth(method = "lm", se = FALSE)
+#Stats about best fit line on plot
+stats2 <- lm(AvgP_Below_1.00x_FPL ~ av_prescribing_rate, data = opioids_suicide_poverty)
+#Regression table based on best fit line of plot
+get_regression_table(stats2)
+#More summary statistics of best fit line on plot
+summary(stats2)
+
+#Residual plot
+get_regression_points(stats2) %>%
+  ggplot(aes(x = av_prescribing_rate, y = residual)) + geom_point() + geom_smooth(method = "lm", se = FALSE)
+
+#Residual distribution
+get_regression_points(stats2) %>%
+  ggplot(aes(x = residual)) + geom_histogram(bins = 70, col = "white")
+
+```
+
+```{r}
+#Plot of prescribing rate vs average percentage of families 1.5x below FPL
+ggplot(opioids_suicide_poverty, aes(av_prescribing_rate, AvgP_Below_1.50x_FPL)) + geom_point(size = 1, shape = 21) + geom_smooth(method = "lm", se = FALSE)
+#Stats about best fit line on plot
+stats3 <- lm(AvgP_Below_1.50x_FPL ~ av_prescribing_rate, data = opioids_suicide_poverty)
+#Regression table based on best fit line of plot
+get_regression_table(stats3)
+#More summary statistics of best fit line on plot
+summary(stats3)
+
+#Residual plot
+get_regression_points(stats3) %>%
+  ggplot(aes(x = av_prescribing_rate, y = residual)) + geom_point() + geom_smooth(method = "lm", se = FALSE)
+
+#Residual distribution
+get_regression_points(stats3) %>%
+  ggplot(aes(x = residual)) + geom_histogram(bins = 70, col = "white")
+
+```
+
+```{r}
+#Plot of prescribing rate vs average percentage of families 2.0x below FPL
+ggplot(opioids_suicide_poverty, aes(av_prescribing_rate, AvgP_Below_2.00x_FPL)) + geom_point(size = 1, shape = 21) + geom_smooth(method = "lm", se = FALSE)
+#Stats about best fit line on plot
+stats4 <- lm(AvgP_Below_2.00x_FPL ~ av_prescribing_rate, data = opioids_suicide_poverty)
+#Regression table based on best fit line of plot
+get_regression_table(stats4)
+#More summary statistics of best fit line on plot
+summary(stats4)
+
+#Residual plot
+get_regression_points(stats4) %>%
+  ggplot(aes(x = av_prescribing_rate, y = residual)) + geom_point() + geom_smooth(method = "lm", se = FALSE)
+
+#Residual distribution
+get_regression_points(stats4) %>%
+  ggplot(aes(x = residual)) + geom_histogram(bins = 70, col = "white")
+
+```
+
