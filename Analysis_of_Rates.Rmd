@@ -407,10 +407,22 @@ Now consider how the association between suicide rate and opioid prescription ra
 ```{r}
 # adding a column for largest poverty bracket
 spo_rate_op <- spo_rate %>%
-  mutate() # need to finish.
+  mutate(Avg_Below_FPL = ((0.5*AvgP_Below_1.50x_FPL)+(1*AvgP_Below_2.00x_FPL))) # need to finish. 
+  # this is the original equation -.5 x A + -.5 x (A+B) + 1 x (A+B+C) = 0 A + .5 B + 1 C
+  # the resulting number is a scale from 1 to 100 with 100 being the top of the
 
-ggplot(spo_rate_op, aes(x = Biological , y = Foster, color = Social))+ 
-  geom_point() 
+
+# Color by poverty values
+spo_plot <-ggplot(spo_rate_op, aes(x = Avg_Prescr_Rate, y = Avg_Suicide_Rate, color=Avg_Below_FPL)) + 
+  geom_point()
+spo_plot
+# Change the low and high colors
+# Sequential color scheme
+spo_plot + scale_color_gradient(low="red", high="green")
+# Diverging color scheme
+mid<-mean(spo_rate_op$Avg_Below_FPL)
+spo_plot+scale_color_gradient2(midpoint=mid, low="red", mid="white",
+                     high="green", space ="Lab" )
 ```
 
 *********************************************************************************
