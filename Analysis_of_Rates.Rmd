@@ -407,22 +407,92 @@ Now consider how the association between suicide rate and opioid prescription ra
 ```{r}
 # adding a column for largest poverty bracket
 spo_rate_op <- spo_rate %>%
-  mutate(Avg_Below_FPL = ((0.5*AvgP_Below_1.50x_FPL)+(1*AvgP_Below_2.00x_FPL))) # need to finish. 
-  # this is the original equation -.5 x A + -.5 x (A+B) + 1 x (A+B+C) = 0 A + .5 B + 1 C
-  # the resulting number is a scale from 1 to 100 with 100 being the top of the
+  mutate(Poverty_Index = ((1/3)*(AvgP_Below_1.00x_FPL+AvgP_Below_1.50x_FPL+AvgP_Below_2.00x_FPL))) 
+  # the resulting number is a scale from 1 to 100. weighted percentage of people in poverty.
+  # this prevents double counting of people and we want those below FPL to weight more heavily on the ranking of a city
+  # calculated by taking AvgP_Below_1.00x_FPL in full weight, AvgP_Below_1.50x_FPL in 2/3 weight, AvgP_Below_2.00x_FPL
+  # in 1/3 weight, and people above AvgP_Below_2.00x_FPL in 0 weight.
 
-
-# Color by poverty values
-spo_plot <-ggplot(spo_rate_op, aes(x = Avg_Prescr_Rate, y = Avg_Suicide_Rate, color=Avg_Below_FPL)) + 
+# Color by poverty index
+spo_plot <-ggplot(spo_rate_op, aes(x = Avg_Prescr_Rate, y = Avg_Suicide_Rate, color=Poverty_Index)) + 
   geom_point()
-spo_plot
-# Change the low and high colors
-# Sequential color scheme
-spo_plot + scale_color_gradient(low="red", high="green")
-# Diverging color scheme
-mid<-mean(spo_rate_op$Avg_Below_FPL)
-spo_plot+scale_color_gradient2(midpoint=mid, low="red", mid="white",
-                     high="green", space ="Lab" )
+
+mid<-mean(spo_rate_op$Poverty_Index)
+spo_plot+scale_color_gradient2(midpoint=mid, low="green", mid="white",
+                     high="red", space ="Lab" )
+```
+
+```{r}
+ggplot(spo_rate_op, aes(x = Avg_Prescr_Rate, y = Poverty_Index)) +
+  geom_point(alpha = 0.3)+
+  geom_smooth(method = lm, se = FALSE) 
+
+m_spi <- lm(Poverty_Index ~ Avg_Prescr_Rate, data = spo_rate_op)
+
+m_spi_rp <- get_regression_points(m_spi)  
+
+ggplot(m_sp1_rp, aes(x =Avg_Prescr_Rate, y = residual) )+
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+
+ggplot(m_spi_rp, aes(x = residual) )+
+  geom_histogram(binwidth = 1, col = "white")
+
+get_regression_table(m_spi)
+summary(m_spi)
+
+b1_spi <- 0.066072
+```
+
+```{r}
+spi_null <- spo_rate_op %>% 
+  specify(Poverty_Index ~ Avg_Prescr_Rate) %>%
+  hypothesize(null = "independence") %>%
+  generate(reps = 1000, type = "permute") %>%
+  calculate(stat = "slope") 
+
+spi_null %>%
+  visualize() + 
+  shade_p_value(obs_stat = b1_spi, direction = "both")
+spi_null %>%
+  get_p_value(obs_stat = b1_spi, direction = "both")
+```
+
+```{r}
+si_boot <- spo_rate_op %>% 
+  specify(Poverty_Index ~ Avg_Prescr_Rate) %>%
+  generate(reps = 1000, type = "bootstrap") %>% 
+  calculate(stat = "slope")
+
+si_boot %>%
+  get_ci(level = 0.95, type = "percentile")
+```
+
+```{r}
+m_spi <- lm(Avg_Prescr_Rate ~ Poverty_Index + 
+               Avg_Suicide_Rate, data = spo_rate_op)
+
+get_regression_table(m_spi)
+get_regression_summaries(m_spi)
+```
+
+$$\begin{aligned} \widehat{Avg\_Prescr\_Rate} &= 25.853	 + 2.320 \times Poverty\_Index 
+\\&+ 1.461 \times Avg\_Suicide\_Rate \end{aligned}$$
+
+
+```{r}
+# ggplot(spo_rate_op, aes(x = Avg_Prescr_Rate, y = Avg_Suicide_Rate, color=AvgP_Below_1.00x_FPL)) + 
+#   geom_point()+
+#   scale_color_gradient2(midpoint=mean(spo_rate_op$AvgP_Below_1.00x_FPL), low="green", mid="white",
+#                      high="red", space ="Lab" )
+# ggplot(spo_rate_op, aes(x = Avg_Prescr_Rate, y = Avg_Suicide_Rate, color=AvgP_Below_1.50x_FPL)) + 
+#   geom_point()+
+#   scale_color_gradient2(midpoint=mean(spo_rate_op$AvgP_Below_1.50x_FPL), low="green", mid="white",
+#                      high="red", space ="Lab" )
+# ggplot(spo_rate_op, aes(x = Avg_Prescr_Rate, y = Avg_Suicide_Rate, color=AvgP_Below_2.00x_FPL)) + 
+#   geom_point()+
+#   scale_color_gradient2(midpoint=mean(spo_rate_op$AvgP_Below_2.00x_FPL), low="green", mid="white",
+#                      high="red", space ="Lab" )
 ```
 
 *********************************************************************************
