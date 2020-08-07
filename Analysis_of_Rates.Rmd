@@ -4,13 +4,14 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning = FALSE, fig.width = 5, fig.height = 3)
+knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning = FALSE, fig.width = 5, fig.height = 3)
 library(tidyverse)
 library(infer)
 library(moderndive)
+library(cowplot)
 ```
 
-***This is an example problem***
+
 
 A [recent NPR article](https://www.npr.org/2020/07/17/887590699/doctors-and-dentists-still-flooding-u-s-with-opioid-prescriptions) 
 noted that the U.S. is still being flooded with opioid prescriptions by doctors and dentists. 
@@ -30,7 +31,7 @@ The opioid prescription rate averages (`Avg_Prescr_Rate`) are calculated retail 
 per 100 persons averaged between 2005 and 2015.  
 
 
-```{r}
+```{r, label = "import data"}
 spo_rate <- read_csv('https://raw.githubusercontent.com/qiqiliang/statistics/master/US_Suicide_Poverty_Opioid_Prescription_Rates') %>%
   select(-X1) %>%
 
@@ -65,19 +66,31 @@ c. Construct a graphic and compute summary statistics to explore the sample data
 Draw some initial conclusions based on your graph and summary statistics.
 
   
-```{r}
-attach(spo_rate)
-par(mfrow=c(1,3))
-hist(Avg_Prescr_Rate)
-hist(Avg_Suicide_Rate)
-hist(Poverty_Index)
+```{r, fig.width = 10, label = "basic histograms"}
+o_basic <- ggplot(spo_rate, aes(x = Avg_Prescr_Rate))+
+  geom_histogram(binwidth = 10, col = "white")
 
-mean(Avg_Prescr_Rate)
-mean(Avg_Suicide_Rate)
-mean(Poverty_Index)
+s_basic <- ggplot(spo_rate, aes(x = Avg_Suicide_Rate))+
+  geom_histogram(binwidth = 1, col = "white")
+
+pi_basic <- ggplot(spo_rate, aes(x = Poverty_Index))+
+  geom_histogram(binwidth = 1, col = "white")
+
+# arrange the plots to be next to each other
+plot_grid(o_basic, s_basic, pi_basic, ncol = 3)
+```
+```{r, include = FALSE, label = "means and medians"}
+spo_rate %>%
+  summarise(mn_o_rate = mean(Avg_Prescr_Rate),
+            mdn_o_rate = median(Avg_Prescr_Rate),
+            mn_s_rate = mean(Avg_Suicide_Rate),
+            mdn_s_rate = median(Avg_Suicide_Rate),
+            mn_p_rate = mean(Poverty_Index),
+            mdn_p_rate = median(Poverty_Index))
+
 ```
 
-The most mean prescription rate per 100 persons is 93.63502, mean suicide rate per 100,000 people is 15.87807, and the mean poverty index is 19.21391 when looking only at families below two times the FPL.
+The mean opioid prescription rate per 100 persons is 93.63502 while the median is 88.14545, mean suicide rate per 100,000 people is 15.87807 while the median is 14.97576, and the mean poverty index is 19.21391 when looking only at families below two times the FPL whiles the median is 18.82.
 
 *********************************************************************************
   
@@ -93,11 +106,11 @@ Regression models
 *********************************************************************************
 
 
-```{r}
+```{r, fig.width=10, label = "regression analysis suicide and opioids"}
 so_plot <- ggplot(spo_rate, aes(x = Avg_Prescr_Rate, y = Avg_Suicide_Rate)) +
   geom_point(alpha = 0.3)+
   geom_smooth(method = lm, se = FALSE) 
-so_plot
+
 
 m_so <- lm(Avg_Suicide_Rate ~ Avg_Prescr_Rate, data = spo_rate)
 
@@ -106,18 +119,19 @@ m_so_rp <- get_regression_points(m_so)
 so_rp_plot <- ggplot(m_so_rp, aes(x =Avg_Prescr_Rate, y = residual) )+
   geom_point(alpha = 0.3) +
   geom_smooth(method = "lm", se = FALSE)
-so_rp_plot
+
 
 so_rp_hplot <- ggplot(m_so_rp, aes(x = residual) )+
   geom_histogram(binwidth = 1, col = "white")
-so_rp_hplot
+
+
+# arrange the plots to be next to each other
+plot_grid(so_plot, so_rp_plot, so_rp_hplot, ncol = 3)
 
 # get_regression_table(m_so)
-summary(m_so)
+# summary(m_so)
 
-b1_so <- 0.031532
-
-
+b1_so <- lm(Avg_Suicide_Rate ~ Avg_Prescr_Rate, data = spo_rate)$coefficients[2]
 
 ```
 
@@ -126,12 +140,13 @@ calculated is less than the significance level $\alpha = 0.05$. The linear model
 seems to be too practical, as the adjusted $R^2 = 0.06084$.
 The calculated slope is $\beta_1 = 0.031532$ with a confidence interval of $(0.026, 0.037)$.
 
-###This next part tells us whether it's appropriate to make assumptions off the regression model based on the guidelines above. 
+###This next part tells us whether it's appropriate to make assumptions off the regression model based on the guidelines above.   
+
 ###The real question is, do we need to make assumptions off it and what does that mean? We're just looking for any relationship.
 
 The histogram of residuals is slightly right skewed, but still uni-modal and close to 0. This shows constant variability, a linear trend, and approximate normalicy. 
 
-```{r}
+```{r, fig.width=10, label = "regression analysis below 1xFPL and opioids"}
 sp1_plot <- ggplot(spo_rate, aes(x = Avg_Prescr_Rate, y = AvgP_Below_1.00x_FPL)) +
   geom_point(alpha = 0.3)+
   geom_smooth(method = lm, se = FALSE) 
@@ -140,42 +155,49 @@ m_sp1 <- lm(AvgP_Below_1.00x_FPL ~ Avg_Prescr_Rate, data = spo_rate)
 
 m_sp1_rp <- get_regression_points(m_sp1)  
 
-so_rp_plot <- ggplot(m_sp1_rp, aes(x =Avg_Prescr_Rate, y = residual) )+
+sp1_rp_plot <- ggplot(m_sp1_rp, aes(x =Avg_Prescr_Rate, y = residual) )+
   geom_point(alpha = 0.3) +
   geom_smooth(method = "lm", se = FALSE)
 
-so_rp_hplot <- ggplot(m_sp1_rp, aes(x = residual) )+
+sp1_rp_hplot <- ggplot(m_sp1_rp, aes(x = residual) )+
   geom_histogram(binwidth = 1, col = "white")
 
-# get_regression_table(m_sp1)
-summary(m_sp1)
+# arrange the plots to be next to each other
+plot_grid(sp1_plot, sp1_rp_plot, sp1_rp_hplot, ncol = 3)
 
-b1_sp1 <- 0.044857
+# get_regression_table(m_sp1)
+# summary(m_sp1)
+
+b1_sp1 <- lm(AvgP_Below_1.00x_FPL ~ Avg_Prescr_Rate, data = spo_rate)$coefficients[2]
 ```
 Opioid prescription rate may be a statistically significant predictor of the percentage of 
 families below 1x the FPL as the p value calculated is less than the significance level 
 $\alpha = 0.05$. The linear model, however, does not seems to be too practical, as the adjusted $R^2 = 0.1608$.
 The calculated slope is $\beta_1 = 0.044857$ with a confidence interval of $(0.040, 0.050)$. 
 
-```{r}
-ggplot(spo_rate, aes(x = Avg_Prescr_Rate, y = AvgP_Below_1.50x_FPL)) +
+```{r, fig.width=10, label = "regression analysis below 1.5xFPL and opioids"}
+sp1_5_plot <- ggplot(spo_rate, aes(x = Avg_Prescr_Rate, y = AvgP_Below_1.50x_FPL)) +
   geom_point(alpha = 0.3)+
   geom_smooth(method = lm, se = FALSE) 
 
 m_sp1_5 <- lm(AvgP_Below_1.50x_FPL ~ Avg_Prescr_Rate, data = spo_rate)
 
-m_sp1_5_rp <- get_regression_points(m_sp1_5)  
-ggplot(m_sp1_5_rp, aes(x = Avg_Prescr_Rate, y = residual) )+
+m_sp1_5_rp <- get_regression_points(m_sp1_5)
+
+sp1_5_rp_plot <- ggplot(m_sp1_5_rp, aes(x = Avg_Prescr_Rate, y = residual) )+
   geom_point(alpha = 0.3) +
   geom_smooth(method = "lm", se = FALSE)
 
-ggplot(m_sp1_5_rp, aes(x = residual) )+
+sp1_5_rp_hplot <- ggplot(m_sp1_5_rp, aes(x = residual) )+
   geom_histogram(binwidth = 1, col = "white")
 
-# get_regression_table(m_sp1_5)
-summary(m_sp1_5)
+# arrange the plots to be next to each other
+plot_grid(sp1_5_plot, sp1_5_rp_plot, sp1_5_rp_hplot, ncol = 3)
 
-b1_sp1_5 <- 0.067001
+# get_regression_table(m_sp1_5)
+# summary(m_sp1_5)
+
+b1_sp1_5 <- lm(AvgP_Below_1.50x_FPL ~ Avg_Prescr_Rate, data = spo_rate)$coefficients[2]
 ```
 
 Opioid prescription rate may be a statistically significant predictor of the percentage of families 
@@ -183,8 +205,8 @@ below 1.5x the FPL as the p value calculated is less than the significance level
 The linear model, however, does not seems to be too practical, as the adjusted $R^2 = 0.159$.
 The calculated slope is $\beta_1 = 0.067001$ with a confidence interval of $(0.060, 0.074)$. 
 
-```{r}
-ggplot(spo_rate, aes(x = Avg_Prescr_Rate, y = AvgP_Below_2.00x_FPL)) +
+```{r, fig.width=10, label = "regression analysis below 2xFPL and opioids"}
+sp2_plot <- ggplot(spo_rate, aes(x = Avg_Prescr_Rate, y = AvgP_Below_2.00x_FPL)) +
   geom_point(alpha = 0.3)+
   geom_smooth(method = lm, se = FALSE) 
 
@@ -192,25 +214,28 @@ m_sp2 <- lm(AvgP_Below_2.00x_FPL ~ Avg_Prescr_Rate, data = spo_rate)
 
 m_sp2_rp <- get_regression_points(m_sp2) 
 
-ggplot(m_sp2_rp, aes(x =Avg_Prescr_Rate, y = residual) )+
+sp2_rp_plot <- ggplot(m_sp2_rp, aes(x =Avg_Prescr_Rate, y = residual) )+
   geom_point(alpha = 0.3) +
   geom_smooth(method = "lm", se = FALSE)
 
-ggplot(m_sp2_rp, aes(x = residual) )+
+sp2_rp_hplot <- ggplot(m_sp2_rp, aes(x = residual) )+
   geom_histogram(binwidth = 1, col = "white")
 
-# get_regression_table(m_sp2)
-summary(m_sp2)
+# arrange the plots to be next to each other
+plot_grid(sp2_plot, sp2_rp_plot, sp2_rp_hplot, ncol = 3)
 
-b1_sp2 <- 0.086358
+# get_regression_table(m_sp2)
+# summary(m_sp2)
+
+b1_sp2 <- lm(AvgP_Below_2.00x_FPL ~ Avg_Prescr_Rate, data = spo_rate)$coefficients[2]
 ```
 Opioid prescription rate may be a statistically significant predictor of the percentage of families 
 below 2.0x the FPL as the p value calculated is less than the significance level $\alpha = 0.05$. 
 The linear model, however, does not seems to be too practical, as the adjusted $R^2 = 0.1632$.
 The calculated slope is $\beta_1 = 0.086358$ with a confidence interval of $(0.077, 0.095)$. 
 
-```{r}
-ggplot(spo_rate, aes(x = Avg_Prescr_Rate, y = Poverty_Index)) +
+```{r, fig.width= 10, label = "regression analysis poverty index and opioids"}
+spi_plot <- ggplot(spo_rate, aes(x = Avg_Prescr_Rate, y = Poverty_Index)) +
   geom_point(alpha = 0.3)+
   geom_smooth(method = lm, se = FALSE) 
 
@@ -218,17 +243,20 @@ m_spi <- lm(Poverty_Index ~ Avg_Prescr_Rate, data = spo_rate)
 
 m_spi_rp <- get_regression_points(m_spi)  
 
-ggplot(m_spi_rp, aes(x =Avg_Prescr_Rate, y = residual) )+
+spi_rp_plot <- ggplot(m_spi_rp, aes(x =Avg_Prescr_Rate, y = residual) )+
   geom_point() +
   geom_smooth(method = "lm", se = FALSE)
 
-ggplot(m_spi_rp, aes(x = residual) )+
+spi_rp_hplot <- ggplot(m_spi_rp, aes(x = residual) )+
   geom_histogram(binwidth = 1, col = "white")
 
-# get_regression_table(m_spi)
-summary(m_spi)
+# arrange the plots to be next to each other
+plot_grid(spi_plot, spi_rp_plot, spi_rp_hplot, ncol = 3)
 
-b1_spi <- 0.066072
+# get_regression_table(m_spi)
+# summary(m_spi)
+
+b1_spi <- lm(Poverty_Index ~ Avg_Prescr_Rate, data = spo_rate)$coefficients[2]
 ```
 
 Opioid prescription rate may be a statistically significant predictor of our calculated poverty index as the p value calculated 
@@ -252,7 +280,7 @@ linear model for predicting score based on the final model you
 settle on.
 
 
-```{r}
+```{r, include = FALSE, label = "multiple regression analysis poverty levels, suicide, and opioids"}
 m_full <- lm(Avg_Prescr_Rate ~ AvgP_Below_2.00x_FPL + 
                AvgP_Below_1.50x_FPL + AvgP_Below_1.00x_FPL + 
                Avg_Suicide_Rate, data = spo_rate)
@@ -261,19 +289,19 @@ get_regression_table(m_full)
 get_regression_summaries(m_full)
 ```
 
-Drop the variable with the highest p-value and re-fit the model.
+<!-- Drop the variable with the highest p-value and re-fit the model. -->
 
-```{r}
-m_full <- lm(Avg_Prescr_Rate ~ AvgP_Below_2.00x_FPL + AvgP_Below_1.00x_FPL + Avg_Suicide_Rate, data = spo_rate)
+```{r, include = FALSE}
+m_no_1_5 <- lm(Avg_Prescr_Rate ~ AvgP_Below_2.00x_FPL + AvgP_Below_1.00x_FPL + Avg_Suicide_Rate, data = spo_rate)
 
 get_regression_table(m_full)
 get_regression_summaries(m_full)
 ```
 
-Drop the variable with the highest p-value and re-fit the model.
+<!-- Drop the variable with the highest p-value and re-fit the model. -->
 
-```{r}
-m_full <- lm(Avg_Prescr_Rate ~ AvgP_Below_1.00x_FPL + Avg_Suicide_Rate, data = spo_rate)
+```{r, include = FALSE}
+m_only_1 <- lm(Avg_Prescr_Rate ~ AvgP_Below_1.00x_FPL + Avg_Suicide_Rate, data = spo_rate)
 
 get_regression_table(m_full)
 get_regression_summaries(m_full)
@@ -283,7 +311,7 @@ $$\begin{aligned} \widehat{Avg\_Prescr\_Rate} &= 30.648 + 3.410 \times AvgP\_Bel
 \\&+ 1.653 \times Avg\_Suicide\_Rate \end{aligned}$$
 
 
-```{r}
+```{r, include = FALSE, label = "multiple regression analysis poverty index, suicide, and opioids"}
 m_spi <- lm(Avg_Prescr_Rate ~ Poverty_Index + 
                Avg_Suicide_Rate, data = spo_rate)
 
@@ -305,31 +333,7 @@ into considering only counties of the same rank with `AvgP_Below_1.00x_FPL` scor
 that are one percent apart.
 
 
-*********************************************************************************
-
-
-What we can calculate: (This is two quantitative variables)
- - proportion of suicides and opioid prescriptions by county population <---- meehhh
- - parameter of interest is regression slope $\beta_1$ and correlation $R$
- - distribution statistic $\hat{\beta}$
-    - approximate $t$ value
-    - standard error
-Infer confidence interval to estimate $\beta_1$
- - data %>% specify(suicide ~ opioid) %>%
- - hypothesize(null = "independence") %>%
- - generate(reps = 1000, type = "permute") %>%
- - calculate(stat = "slope") %>%
- - get_p_value(obs_stat = beta_1, direction = "both")
- 
-Regression models
-  it is only appropriate to make predictions based on a regression model if:
-    
-  1. The data should show a linear trend.
   
-  2. The distribution of residuals is approximately Normal.
-  
-  3. The residuals have constant variability.
- 
  
  
  
@@ -344,7 +348,7 @@ Run the following code to generate a null distribution for slopes, assuming
     the distribution and compute the p_value. Compare the P-value you get here
     to the one given for slope in the regression table above.
     
-```{r}
+```{r, label = "null distribution suicide and opioids"}
 so_null <- spo_rate %>% 
   specify(Avg_Suicide_Rate ~ Avg_Prescr_Rate) %>%
   hypothesize(null = "independence") %>%
@@ -354,11 +358,11 @@ so_null <- spo_rate %>%
 so_null %>%
   visualize() + 
   shade_p_value(obs_stat = b1_so, direction = "both")
-so_null %>%
-  get_p_value(obs_stat = b1_so, direction = "both")
+# so_null %>%
+#   get_p_value(obs_stat = b1_so, direction = "both")
 ```
 
-```{r}
+```{r, label = "null distribution below 1xFPL and opioids"}
 sp1_null <- spo_rate %>% 
   specify(AvgP_Below_1.00x_FPL ~ Avg_Prescr_Rate) %>%
   hypothesize(null = "independence") %>%
@@ -368,11 +372,11 @@ sp1_null <- spo_rate %>%
 sp1_null %>%
   visualize() + 
   shade_p_value(obs_stat = b1_sp1, direction = "both")
-sp1_null %>%
-  get_p_value(obs_stat = b1_sp1, direction = "both")
+# sp1_null %>%
+#   get_p_value(obs_stat = b1_sp1, direction = "both")
 ```
 
-```{r}
+```{r, label = "null distribution below 1.5xFPL and opioids"}
 sp1_5_null <- spo_rate %>% 
   specify(AvgP_Below_1.50x_FPL ~ Avg_Prescr_Rate) %>%
   hypothesize(null = "independence") %>%
@@ -382,11 +386,11 @@ sp1_5_null <- spo_rate %>%
 sp1_5_null %>%
   visualize() + 
   shade_p_value(obs_stat = b1_sp1_5, direction = "both")
-sp1_5_null %>%
-  get_p_value(obs_stat = b1_sp1_5, direction = "both")
+# sp1_5_null %>%
+#   get_p_value(obs_stat = b1_sp1_5, direction = "both")
 ```
 
-```{r}
+```{r, label = "null distribution below 2xFPL and opioids"}
 sp2_null <- spo_rate %>% 
   specify(AvgP_Below_2.00x_FPL ~ Avg_Prescr_Rate) %>%
   hypothesize(null = "independence") %>%
@@ -396,11 +400,11 @@ sp2_null <- spo_rate %>%
 sp2_null %>%
   visualize() + 
   shade_p_value(obs_stat = b1_sp2, direction = "both")
-sp2_null %>%
-  get_p_value(obs_stat = b1_sp2, direction = "both")
+# sp2_null %>%
+#   get_p_value(obs_stat = b1_sp2, direction = "both")
 ```
 
-```{r}
+```{r, label = "null distribution poverty index and opioids"}
 spi_null <- spo_rate %>% 
   specify(Poverty_Index ~ Avg_Prescr_Rate) %>%
   hypothesize(null = "independence") %>%
@@ -410,8 +414,8 @@ spi_null <- spo_rate %>%
 spi_null %>%
   visualize() + 
   shade_p_value(obs_stat = b1_spi, direction = "both")
-spi_null %>%
-  get_p_value(obs_stat = b1_spi, direction = "both")
+# spi_null %>%
+#   get_p_value(obs_stat = b1_spi, direction = "both")
 ```
 
 If the null hypothesis were true, then the observed slope does not seem plausible because it is an extreme value rather than a more expected value near the center of the distribution. The P-value, assuming a significance level of $\alpha = 0.05$, is 0 when rounded to the thousandth, which means we can reject the null-hypothesis and test for aspects of the alternative. The P-value here and the one generated by the linear regression above is the same when rounded to the thousandth.
@@ -429,15 +433,16 @@ Run the following code to generate a bootstrap distribution for slopes.
     regression table above. Finally, assess whether this claim is reasonable
     given your data set.
     
-```{r}
+```{r, label = "boostrap distribution below 1xFPL and opioids"}
 so_boot <- spo_rate %>% 
   specify(Avg_Suicide_Rate ~ Avg_Prescr_Rate) %>%
   generate(reps = 1000, type = "bootstrap") %>% 
-  calculate(stat = "slope")
+  calculate(stat = "slope") 
 
 so_boot %>%
   get_ci(level = 0.95, type = "percentile")
 ```
+
 ```{r}
 sp1_boot <- spo_rate %>% 
   specify(AvgP_Below_1.00x_FPL ~ Avg_Prescr_Rate) %>%
@@ -496,7 +501,7 @@ mid <- mean(spo_rate$Poverty_Index)
 
 # Color by poverty index
 spo_plot <-ggplot(spo_rate, aes(x = Avg_Prescr_Rate, y = Avg_Suicide_Rate, color=Poverty_Index)) + 
-  geom_point() + 
+  geom_point(position = "jitter") + 
   scale_color_gradient2(midpoint=mid, low="green", mid="white", high="red", space ="Lab" )
 spo_plot
 ```
