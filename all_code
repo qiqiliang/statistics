@@ -1,0 +1,396 @@
+---
+title: "Analysis between opioid prescription rates, suicide rates, and poverty levels"
+date: "7/18/2020"
+output: html_document
+---
+### Introduction
+
+A recent NPR article titled "Doctors and Dentists Still Flooding U.S With Opioid Prescriptions," discusses how health care professionals are still prescribing opioids at an alarming rate. The opioid pandemic has plagued our country since the late 1990s, causing widespread misuse and fatal addictions. Furthermore, according to an NIH article, "Suicide Deaths are a Major Component of the Opioid Crisis that Must be Addressed," some experts believe that up to 30% of opioid overdoses may actually be suicides. In fact, the relationship between suicides and opioids have seemed to increase with time and in one particular study, it was shown that people who misused prescription opioids had a much higher rate of suicide ideation, even when other health conditions were controlled. Additionally, those misusing opioid prescriptions were about twice as likely to attempt suicide compared to those that did not misuse opioids. Per these article and the ongoing opioid crisis, this project looks into the factors that may potentially affect the rate of opioid prescriptions. Specifically this project attempts to address the question: Is there a larger rate of legal opioid prescription related to higher numbers in suicide and poverty rates? 
+
+###Dataset
+
+We used three separate datasets in this project. The suicide dataset is from the Center for Disease Control and Prevention (CDC) website and provides the suicide death rates in the United States per county per 100,000 population from 2008-2014. The opioid prescription dataset is also from the CDC and provides information about the number of opioid prescriptions per 100 residents, by state and county, from 2006 to 2018. Finally, the poverty dataset is obtained from the Health Resources and Services Administration (HRSA) website. The data obtained provides information about the percentage of families, by state and county, with incomes below 1, 1.50, and 2.00 times the federal poverty level from 2014-2018. The independent variable for this project is "av_prescribing_rate." The dependent variables are "av_suicide_rate," "AvgP_Below_1.00x_FPL," "AvgP_Below_1.50x_FPL," "AvgP_Below_2.00x_FPL" and "Poverty_Index." The "av_prescribing_rate" describes the average opioid prescriptions dispensed per 100 persons in each county. The "av_suicide_rate" describes death rates (by suicide)  per 100,000 people in each county. The "AvgP_Below_1.00x_FPL," "AvgP_Below_1.50x_FPL" and "AvgP_Below_2.00x_FPL" describes the average percentage of families with incomes below 1x, 1.5x, and 2x the federal poverty level, grouped by county. The poverty index is a weighted percentage of people in poverty. This calculated value prevents double counting of people and we want those below FPL to weigh more heavily on the ranking of a county. This was calculated by taking AvgP_Below_1.00x_FPL with full weight, AvgP_Below_1.50x_FPL with 2/3 weight, AvgP_Below_2.00x_FPL with 1/3 weight, and people above AvgP_Below_2.00x_FPL with 0 weight. The higher the poverty index, the more families near or in poverty in respective counties. The population parameter in our study is the counties in the U.S. These datasets are appropriate for our research question because it accounts for the many suicide rates, opioid prescription rates, and poverty levels over a generous amount of years. From these large datasets, we can assess whether there is a relationship between opioid prescriptions, suicide rates, and poverty.
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+library(moderndive)
+library(infer)
+library(skimr)
+```
+
+```{r}
+#Raw suicides data
+suicides <- read.csv('https://wisqars.cdc.gov:8443/cdcMapFramework/ExcelServlet?excelFile=m4687721_csv')
+suicides <- suicides %>%
+  slice(22:3159) %>%
+  select(- X_)
+
+# Opioid Prescribing Rate by County
+opioid_prescription_rate <- read.csv('https://raw.githubusercontent.com/qiqiliang/statistics/master/US_County_Prescribing_Rates_Opioids.csv')
+
+#Raw poverty level data
+poverty_level <-read.csv("https://raw.githubusercontent.com/qiqiliang/statistics/master/perc_poverty_dataset.csv")
+
+```
+
+```{r}
+#Tidying up the suicide dataset
+suicides <- suicides %>%
+  filter(U_C_Rate != "") %>%
+  select(-StateFIPS,-CountyFIPS, -Population, -Deaths) %>%
+  rename(State = ST, av_suicide_rate = U_C_Rate)
+
+suicides <- suicides %>%
+  mutate_at('av_suicide_rate', as.numeric) #Changing average suicide rate to a double
+  
+#Tidying up opioid dataset
+opioids <- opioid_prescription_rate %>%
+  filter(Prescribing.Rate != '-') %>%
+  group_by(County, State) %>%
+  select(-FIPS.County.Code) %>%
+  summarise(av_prescribing_rate = mean(Prescribing.Rate))
+
+#Adding poverty index to poverty levels dataset
+
+poverty_level <- poverty_level %>%
+  mutate(Poverty_Index = ((1/3) * (AvgP_Below_1.00x_FPL + AvgP_Below_1.50x_FPL + AvgP_Below_2.00x_FPL))) 
+
+#Merging the suicide and opioid dataset
+total <- merge(suicides, opioids, by = c("County","State")) 
+
+#Merging all the datasets together
+opioids_suicide_poverty <- merge(total, poverty_level, by = c("County", "State"))  
+
+```
+
+###Exploratory Analysis
+
+```{r}
+#Univariate stats about our data
+
+#Suicide Rates
+mean(opioids_suicide_poverty$av_suicide_rate)
+hist(opioids_suicide_poverty$av_suicide_rate, xlab = "Suicide Rate", main = "Histogram of suicide rates")
+
+#Opioid Prescription Rates
+mean(opioids_suicide_poverty$av_prescribing_rate)
+hist(opioids_suicide_poverty$av_prescribing_rate, xlab = "Opioid Prescriptions", main = "Histogram of opioid prescriptions dispensed per 100 persons")
+
+#AvgP_Below_2.00x_FPL
+mean(opioids_suicide_poverty$Poverty_Index, na.rm = TRUE)
+hist(opioids_suicide_poverty$Poverty_Index, xlab = "Poverty Index", main = "Histogram of poverty index")
+```
+
+We first take a look at a histogram of our dataset to see how the data is distributed. From this, we also calculated the mean of the data to find averages. All of the histograms are right skewed. The average suicide rate is about 15.98394%.  The average amount of opioid prescriptions dispensed per 100 persons remain incredibly high at 92.88181. Finally, the average poverty index is 19.22969, meaning that about 19% of people live in or near poverty in the US. These rates are all pretty high, indicating that it seems reasonable to look at the data in more detail.
+
+
+Below, we take a look at our data in greater detail. We want to determine if any of the variables have some correlation to each other whatsoever. For each analysis, we generated a scatterplot, a residual plot, and a residual distribution of our data. Additionally, we created a linear regression model for the scatterplots and correspondingly found the slope, intercept, p value, and multiple r square value from the linear regression.
+
+```{r}
+#Plot of prescribing rate vs. suicide rate
+ggplot(opioids_suicide_poverty, aes(av_prescribing_rate, av_suicide_rate)) + geom_point(size = 1, shape = 21) + geom_smooth(method = "lm", se = FALSE) + ggtitle("Scatterplot of average suicide rate vs. average prescibing rate")
+#Stats about best fit line on plot
+stats1 <- lm(av_suicide_rate ~ av_prescribing_rate, data = opioids_suicide_poverty)
+#Regression table based on best fit line of plot
+get_regression_table(stats1)
+#More bivariate summary statistics of best fit line on plot
+summary(stats1)
+
+#Residual plot
+get_regression_points(stats1) %>%
+  ggplot(aes(av_prescribing_rate, residual)) + geom_point() + geom_smooth(method = "lm", se = FALSE) + ggtitle("Residual plot")
+  
+#Residual distribution
+get_regression_points(stats1) %>%
+  ggplot(aes(x = residual)) + geom_histogram(bins = 70, col = "white")  + ggtitle("Residual distribution")
+
+b1_so <- 0.027
+
+```
+
+First, we want to see if there may be any correlation between opioid prescription rate and suicide rate. The scatterplot shows that the data is linear. The residual plot demonstrates that even though there are a couple of outliers, most of the data points are independent from each other and show constant variability. The histogram of the residuals is a bit right skewed, however is still unimodal and close to 0.  Our results indicate that opioid prescription rate may be a statistically significant predictor of suicide rate. The slope of this line is 0.026531, which is not 0. The p value for the slope of the line is much smaller than our alpha value of 0.05. Thus, we concluded this slope value does have some statistically significant meaning. However, the correlation between these two variables seem to be very weak, as the multiple r-squared value turns out to be 0.04178. 
+
+```{r}
+#Plot of prescribing rate vs average percentage of families 1x below FPL
+ggplot(opioids_suicide_poverty, aes(av_prescribing_rate, AvgP_Below_1.00x_FPL )) + geom_point(size = 1, shape = 21) + geom_smooth(method = "lm", se = FALSE)
+#Stats about best fit line on plot
+stats2 <- lm(AvgP_Below_1.00x_FPL ~ av_prescribing_rate, data = opioids_suicide_poverty)
+#Regression table based on best fit line of plot
+get_regression_table(stats2)
+#More summary statistics of best fit line on plot
+summary(stats2)
+
+#Residual plot
+get_regression_points(stats2) %>%
+  ggplot(aes(x = av_prescribing_rate, y = residual)) + geom_point() + geom_smooth(method = "lm", se = FALSE)
+
+#Residual distribution
+get_regression_points(stats2) %>%
+  ggplot(aes(x = residual)) + geom_histogram(bins = 70, col = "white")
+
+b1_fpl1 <- 0.043
+
+```
+
+For the second plot, we want to see if there is any correlation between the opioid prescription rate and the percentage of families with income below 1x federal poverty level. The scatterplot vaguely shows that the data is linear. From the residual plot, we can see that even though there are a couple of outliers, most of the data points are independent from each other. However, there may be a problem with variance since as our x variable increases, variability also increases. The histogram of the residuals is a bit right skewed, however is still unimodal and close to 0. Percentage of families with incomes below 1x federal poverty level may be a statistically significant predictor of opioid prescription rates. The slope of this line is 0.042786. The p value for the slope of the line generated with a linear regression model is much smaller than our alpha value of 0.05. However, the correlation between these two variables seem to be weak, as the multiple r-squared value turns out to be 0.1438. 
+
+```{r}
+#Plot of prescribing rate vs average percentage of families 1.5x below FPL
+ggplot(opioids_suicide_poverty, aes(av_prescribing_rate, AvgP_Below_1.50x_FPL)) + geom_point(size = 1, shape = 21) + geom_smooth(method = "lm", se = FALSE)
+#Stats about best fit line on plot
+stats3 <- lm(AvgP_Below_1.50x_FPL ~ av_prescribing_rate, data = opioids_suicide_poverty)
+#Regression table based on best fit line of plot
+get_regression_table(stats3)
+#More summary statistics of best fit line on plot
+summary(stats3)
+
+#Residual plot
+get_regression_points(stats3) %>%
+  ggplot(aes(x = av_prescribing_rate, y = residual)) + geom_point() + geom_smooth(method = "lm", se = FALSE)
+
+#Residual distribution
+get_regression_points(stats3) %>%
+  ggplot(aes(x = residual)) + geom_histogram(bins = 70, col = "white")
+
+b1_fpl1.5 <- 0.064
+
+```
+
+For our third plot, we want to see if there is any correlation between the opioid prescription rate and the percentage of families with income below 1.5x federal poverty level. The scatterplot vaguely shows that the data is linear. From the residual plot, we can see that even though there are a couple of outliers, most of the data points are independent from each other. However, there may be a problem with variance since as our x variable increases, variability also increases. The histogram of the residuals is a bit right skewed, however is still unimodal and close to 0. Percentage of families with incomes below 1.50x federal poverty level may be a statistically significant predictor of opioid prescription rates. The slope of this line is 0.064313. The p value for the slope of the line generated with a linear regression model is much smaller than our alpha value of 0.05. However, the correlation between these two variables seem to be weak, as the multiple r-squared value turns out to be 0.1469. 
+
+```{r}
+#Plot of prescribing rate vs average percentage of families 2.0x below FPL
+ggplot(opioids_suicide_poverty, aes(av_prescribing_rate, AvgP_Below_2.00x_FPL)) + geom_point(size = 1, shape = 21) + geom_smooth(method = "lm", se = FALSE)
+#Stats about best fit line on plot
+stats4 <- lm(AvgP_Below_2.00x_FPL ~ av_prescribing_rate, data = opioids_suicide_poverty)
+#Regression table based on best fit line of plot
+get_regression_table(stats4)
+#More summary statistics of best fit line on plot
+summary(stats4)
+
+#Residual plot
+get_regression_points(stats4) %>%
+  ggplot(aes(x = av_prescribing_rate, y = residual)) + geom_point() + geom_smooth(method = "lm", se = FALSE)
+
+#Residual distribution
+get_regression_points(stats4) %>%
+  ggplot(aes(x = residual)) + geom_histogram(bins = 70, col = "white")
+
+b1_fpl2 <- 0.083
+
+```
+
+For our fourth plot, we want to see if there is any correlation between the opioid prescription rate and the percentage of families with income below 2.00x federal poverty level.The scatterplot shows that the data is pretty linear. From the residual plot, we can see that even though there are a couple of outliers, most of the data points are independent from each other. However, there may be a problem with variance since as our x variable increases, variability also increases. The histogram of the residuals is a bit right skewed, however is still unimodal and close to 0. Percentage of families with incomes below 2.00x federal poverty level may be a statistically significant predictor of opioid prescription rates. The slope of this line is 0.082797. The p value for the slope of the line generated with a linear regression model is much smaller than our alpha value of 0.05. However, the correlation between these two variables seem to be weak, as the multiple r-squared value turns out to be 0.1519.
+
+```{r}
+#Plot of prescribing rate vs poverty index
+ggplot(opioids_suicide_poverty, aes(av_prescribing_rate, Poverty_Index)) + geom_point(size = 1, shape = 21) + geom_smooth(method = "lm", se = FALSE)
+#Stats about best fit line on plot
+stats5 <- lm(Poverty_Index ~ av_prescribing_rate, data = opioids_suicide_poverty)
+#Regression table based on best fit line of plot
+get_regression_table(stats5)
+#More summary statistics of best fit line on plot
+summary(stats5)
+
+#Residual plot
+get_regression_points(stats5) %>%
+  ggplot(aes(x = av_prescribing_rate, y = residual)) + geom_point() + geom_smooth(method = "lm", se = FALSE)
+
+#Residual distribution
+get_regression_points(stats5) %>%
+  ggplot(aes(x = residual)) + geom_histogram(bins = 70, col = "white")
+
+b1_pi <- 0.063
+
+```
+
+For our fifth plot, we want to see if there is any correlation between the opioid prescription rate and the poverty index. The scatterplot shows that the data is pretty linear. From the residual plot, we can see that even though there are a couple of outliers, most of the data points are independent from each other. However, there may be a problem with variance since as our x variable increases, variability also increases. The histogram of the residuals is a bit right skewed, however is still unimodal and close to 0. Poverty index may be a statistically significant predictor of opioid prescription rates. The slope of this line is 0.063299. The p value for the slope of the line generated with a linear regression model is much smaller than our alpha value of 0.05. However, the correlation between these two variables seem to be weak, as the multiple r-squared value turns out to be 0.1521.  
+
+```{r}
+#Plot of prescribing rate and suicide and poverty index
+
+mid = mean(opioids_suicide_poverty$Poverty_Index, na.rm = TRUE)
+
+ggplot(opioids_suicide_poverty, aes(av_prescribing_rate, av_suicide_rate, color = Poverty_Index)) + geom_point() + scale_colour_gradient2(midpoint = mid, low = "green", mid = "white", high = "red", space = "Lab")
+
+```
+
+Finally in last scatterplot, we want to consider how the association between suicide rate and opioid prescription rate would change if poverty brackets were taken into account. This scatterplot shows the relationship between suicide rate, opioid prescription rate, and poverty levels. Just by looking at the plot, it seems that areas with lower poverty indexes also have correspondingly lower opioid prescription rates. Areas with higher poverty rates/greater poverty indexes seem to associate with greater opioid prescribing rates as well. Additionally, suicide rates seem to go up very slightly as poverty index increases.
+
+###Statistical inference 
+
+Our null hypothesis is that there is no correlation between suicide rates, poverty level, and opioid prescription rates (slope(b1) = 0). Our alternative hypothesis is that there is a correlation between suicide rates, poverty level, and opioid prescription rates (slope != 0). For this research question, a type I error would represent having some correlations between suicide rates, poverty level, and opioid prescription rates, yet we accept the null due to some unlikely circumstance that all the values had similar spikes over the years. Subsequently, a type II error would represent having no correlation between suicide rates, poverty level, and opioid prescription rates yet we reject the null because of some unlikely circumstance that all the values had similar spikes over the years. Since the all the scatterplots generated above had a slope that was fairly close to 0, null distributions were performed to see whether or not the slope can actually be passed off as 0. 
+
+```{r}
+#Generating null distributions for suicide and prescribing rate
+so_null <- opioids_suicide_poverty %>%
+  specify(av_suicide_rate ~ av_prescribing_rate) %>%
+  hypothesise(null = "independence") %>%
+  generate(reps = 1000, type = "permute") %>%
+  calculate(stat = "slope")
+#Visualizing the null distribution 
+so_null %>%
+  visualize() +
+  shade_p_value(obs_stat = b1_so, direction = "both")
+#Getting p value from our null distribution
+so_null %>%
+  get_p_value(obs_stat = b1_so, direction = "both")
+
+```
+
+
+```{r}
+#Generating null distributions for average percentage of families with income below 1x FPL and prescribing rate
+fpl1_null <- opioids_suicide_poverty %>%
+  specify( AvgP_Below_1.00x_FPL~av_prescribing_rate) %>%
+  hypothesise(null = "independence") %>%
+  generate(reps = 1000, type = "permute") %>%
+  calculate(stat = "slope")
+#Visualizing the null distribution 
+fpl1_null %>%
+  visualize() +
+  shade_p_value(obs_stat = b1_fpl1, direction = "both")
+#Getting p value from our null distribution
+fpl1_null %>%
+  get_p_value(obs_stat = b1_fpl1, direction = "both")
+
+```
+
+```{r}
+#Generating null distributions for average percentage of families with income below 1.5x FPL and prescribing rate
+fpl1.5_null <- opioids_suicide_poverty %>%
+  specify(AvgP_Below_1.50x_FPL ~ av_prescribing_rate) %>%
+  hypothesise(null = "independence") %>%
+  generate(reps = 1000, type = "permute") %>%
+  calculate(stat = "slope")
+#Visualizing the null distribution 
+fpl1.5_null %>%
+  visualize() +
+  shade_p_value(obs_stat = b1_fpl1.5, direction = "both")
+#Getting p value from our null distribution
+fpl1.5_null %>%
+  get_p_value(obs_stat = b1_fpl1.5, direction = "both")
+
+```
+
+```{r}
+#Generating null distributions for average percentage of families with income below 2.00x FPL and prescribing rate
+fpl2_null <- opioids_suicide_poverty %>%
+  specify(AvgP_Below_2.00x_FPL ~ av_prescribing_rate ) %>%
+  hypothesise(null = "independence") %>%
+  generate(reps = 1000, type = "permute") %>%
+  calculate(stat = "slope")
+#Visualizing the null distribution 
+fpl2_null %>%
+  visualize() +
+  shade_p_value(obs_stat = b1_fpl2, direction = "both")
+#Getting p value from our null distribution
+fpl2_null %>%
+  get_p_value(obs_stat = b1_fpl2, direction = "both")
+
+```
+
+```{r}
+#Generating null distributions for poverty index and prescribing rate
+pi_null <- opioids_suicide_poverty %>%
+  specify(Poverty_Index ~ av_prescribing_rate) %>%
+  hypothesise(null = "independence") %>%
+  generate(reps = 1000, type = "permute") %>%
+  calculate(stat = "slope")
+#Visualizing the null distribution 
+pi_null %>%
+  visualize() +
+  shade_p_value(obs_stat = b1_pi, direction = "both")
+#Getting p value from our null distribution
+pi_null %>%
+  get_p_value(obs_stat = b1_pi, direction = "both")
+
+```
+
+For all the null distributions generated, if the null hypothesis were true, then the observed slope does not seem plausible because it is an extreme value rather than a more expected value near the center of the distribution. The p-value, assuming a significance level of 0.05, is 0 when rounded to the thousandth, which means we can reject the null-hypothesis and test for the alternative. The p-value here and the one generated by the linear regression above is the same when rounded to the thousandth.
+
+
+In addition to null distributions, bootstraps distributions were done to assess confidence levels for slopes. 
+```{r}
+#Bootstrap distribution for slopes: suicide rate and prescribing rate
+so_boot <- opioids_suicide_poverty %>%
+  specify(av_suicide_rate ~ av_prescribing_rate) %>%
+  generate(reps = 1000, type = "bootstrap") %>%
+  calculate(stat = "slope")
+
+so_boot %>%
+  get_ci(level = 0.95, type= "percentile")
+
+
+```
+
+The confidence interval from the regression table for suicide rate and opioid prescription rate is [0.021-0.032]. Compared to the bootstrapping distribution, this confidence interval is very similar. 
+
+```{r}
+#Bootstrap distribution for slopes: average percentage of families with income below 1.00x FPL and prescribing rate
+fpl1_boot <- opioids_suicide_poverty %>%
+  specify(AvgP_Below_1.00x_FPL ~ av_prescribing_rate) %>%
+  generate(reps = 1000, type = "bootstrap") %>%
+  calculate(stat = "slope")
+
+fpl1_boot %>%
+  get_ci(level = 0.95, type= "percentile")
+
+```
+
+The confidence interval from the regression table for average percentage of families with income below 1.00x federal poverty level and opioid prescription rate is [0.038-0.048].
+
+
+```{r}
+#Bootstrap distribution for slopes: average percentage of families with income below 1.50x FPL and prescribing rate
+fpl1.5_boot <- opioids_suicide_poverty %>%
+  specify(AvgP_Below_1.50x_FPL ~ av_prescribing_rate) %>%
+  generate(reps = 1000, type = "bootstrap") %>%
+  calculate(stat = "slope")
+
+fpl1.5_boot %>%
+  get_ci(level = 0.95, type= "percentile")
+
+
+```
+
+The confidence interval from the regression table for average percentage of families with income below 1.50x federal poverty level and opioid prescription rate is [0.057-0.072].
+
+```{r}
+#Bootstrap distribution for slopes: average percentage of families with income below 2.00x FPL and prescribing rate
+fpl2_boot <- opioids_suicide_poverty %>%
+  specify(AvgP_Below_2.00x_FPL ~ av_prescribing_rate) %>%
+  generate(reps = 1000, type = "bootstrap") %>%
+  calculate(stat = "slope")
+
+fpl2_boot %>%
+  get_ci(level = 0.95, type= "percentile")
+
+```
+
+The confidence interval from the regression table for average percentage of families with income below 2.00x federal poverty level and opioid prescription rate is [0.074-0.092].
+
+```{r}
+#Bootstrap distribution for slopes: poverty index and prescribing rate
+pi_boot <- opioids_suicide_poverty %>%
+  specify(Poverty_Index ~ av_prescribing_rate) %>%
+  generate(reps = 1000, type = "bootstrap") %>%
+  calculate(stat = "slope")
+
+pi_boot %>%
+  get_ci(level = 0.95, type= "percentile")
+
+
+```
+
+The confidence interval from the regression table for the poverty index and opioid prescription rate is [0.056,0.070].
+
+For all the bootstrap generated confidence intervals, the values were very similar to the confidence intervals from the regression table. 
+
+###Discussion
+
+In conclusion, we reject our null hypothesis and accept the alternative that there is some relationship between suicide rates, poverty level, and opioid prescription rates. However, this relationship is very weak, as indicated by our multiple r squared value of 0.027 for the opioid prescription rate and suicide rate scatterplot. Furthermore, there were many limitations to our dataset. Using poverty indexes or the federal poverty income levels to determine a family's well being can be misleading. A family's income may not necessarily tell us all about the family's living situation or living standards. These factors often vary household to household depending on reasons not explained by current income. Additionally, income based measures only account for the current income a family is making and does not account for wealth. In other words, current income does not take into consideration liquid assets, savings, debt, credit, or goods/services that may be obtained with things other than income (gifts, exchanges, etc.). Income also does not account for government services or financial aid. Thus, by only using income as a measure of poverty, we may be misrepresenting parts of population. Additionally, we do not take into account how healthcare access varies from region to region. This may also be misleading since areas with higher opioid prescription rates may be higher simply because they have more doctors to prescribe them opioids. Likewise, areas with lower prescription rates may be lower because they have less doctors or no doctors to prescribe them opioids. Of course, this is again only considering the population is obtaining opioids in a legal manner. This brings us to another limitation of our datasets- The data does not take into account opioids being illegally distributed. For example, an opioid addict may likely need more prescriptions compared to a non opioid addict, and thus the doctor is forced to prescribe more opioids to that person before getting them on a treatment plan. Furthermore, there are some limitations in our suicide dataset as well. Our suicide dataset does not take into account suicide attempts unless the attempts result in death, nor does it take into account suicide ideation. This may provide an incomplete picture of suicidal behavior in relation to opioid prescriptions. Additionally, gathering data on suicides may be difficult due inconsistencies in defining what constitutes a suicide. However, despite the vast limitations of our dataset, acknowledging these relationships exists is an important step in addressing these issues. Some areas of future work could be examining how access to healthcare would impact the overall data. Additionally...
