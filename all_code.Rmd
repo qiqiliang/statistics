@@ -1,6 +1,7 @@
 ---
 title: "Analysis between opioid prescription rates, suicide rates, and poverty levels"
 date: "7/18/2020"
+authors: "Qiqi Liang, Kaitlyn Li"
 output: html_document
 ---
 ### Introduction
@@ -108,7 +109,7 @@ get_regression_points(stats1) %>%
 get_regression_points(stats1) %>%
   ggplot(aes(x = residual)) + geom_histogram(bins = 70, col = "white")  + ggtitle("Residual distribution")
 
-b1_so <- 0.027
+b1_so <- stats1$coefficients[2]
 
 ```
 
@@ -132,7 +133,8 @@ get_regression_points(stats2) %>%
 get_regression_points(stats2) %>%
   ggplot(aes(x = residual)) + geom_histogram(bins = 70, col = "white")
 
-b1_fpl1 <- 0.043
+#pulls slope straight from table so that if you change anything this doesn't have to change
+b1_fpl1 <- stats2$coefficients[2]
 
 ```
 
@@ -156,7 +158,7 @@ get_regression_points(stats3) %>%
 get_regression_points(stats3) %>%
   ggplot(aes(x = residual)) + geom_histogram(bins = 70, col = "white")
 
-b1_fpl1.5 <- 0.064
+b1_fpl1.5 <- stats3$coefficients[2]
 
 ```
 
@@ -180,7 +182,7 @@ get_regression_points(stats4) %>%
 get_regression_points(stats4) %>%
   ggplot(aes(x = residual)) + geom_histogram(bins = 70, col = "white")
 
-b1_fpl2 <- 0.083
+b1_fpl2 <- stats4$coefficients[2]
 
 ```
 
@@ -204,7 +206,7 @@ get_regression_points(stats5) %>%
 get_regression_points(stats5) %>%
   ggplot(aes(x = residual)) + geom_histogram(bins = 70, col = "white")
 
-b1_pi <- 0.063
+b1_pi <- stats4$coefficients[2]
 
 ```
 
