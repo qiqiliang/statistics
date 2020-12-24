@@ -1,5 +1,5 @@
 ---
-title: "Investigating the Correlation between Opioid Prescription Rates, Suicide Rates, and Poverty Levels"
+title: "Impact of Opioid Prescription Rate on Suicide Rates and Poverty Levels of Counties in the United States"
 output: html_document
 ---
 
@@ -10,6 +10,8 @@ library(infer)
 library(moderndive)
 library(cowplot)
 ```
+
+  
 
 ## Introduction
 
@@ -142,8 +144,8 @@ so_rp_hplot <- ggplot(m_so_rp, aes(x = residual) )+
   geom_histogram(binwidth = 1, col = "white")+ 
    labs(x = "Opioid Prescription Rate", y = "Residual", title = "Histogram of Residuals")
 
-# get_regression_table(m_so)
-# summary(m_so)
+get_regression_table(m_so)
+summary(m_so)
 
 b1_so <- m_so$coefficients[2]
 
@@ -403,8 +405,8 @@ spi_rp_hplot <- ggplot(m_spi_rp, aes(x = residual) )+
   geom_histogram(binwidth = 1, col = "white")+ 
   labs(x = "Opioid Prescription Rate", y = "Residual", title = "Histogram of Residuals")
 
-# get_regression_table(m_spi)
-# summary(m_spi)
+get_regression_table(m_spi)
+summary(m_spi)
 
 b1_spi <- m_spi$coefficients[2]
 
@@ -495,6 +497,7 @@ mid <- mean(spo_rate$Poverty_Index)
 # Color by poverty index
 spo_plot <-ggplot(spo_rate, aes(x = Avg_Prescr_Rate, y = Avg_Suicide_Rate, color=Poverty_Index)) + 
   geom_point(position = "jitter") + 
+  # geom_smooth(method = "lm", se = FALSE)+ 
   scale_color_gradient2(midpoint=mid, low="green", mid="white", high="red", space ="Lab", name = "Poverty Index\n (0 to 100)") +
   labs(title = "Visualization of Opioids, Suicide, and Poverty Relationship", y = "Suicides (per 100,000 people)", x = "Opioid Prescriptions (per 100 persons)")
 
@@ -580,12 +583,13 @@ pis_boot %>%
 
 
 ```{r, include = FALSE, label = "multiple regression analysis poverty levels, suicide, and opioids"}
-m_full <- lm(Avg_Prescr_Rate ~ AvgP_Below_2.00x_FPL + 
+m_full <- lm(Avg_Prescr_Rate ~ Poverty_Index + AvgP_Below_2.00x_FPL + 
                AvgP_Below_1.50x_FPL + AvgP_Below_1.00x_FPL + 
                Avg_Suicide_Rate, data = spo_rate)
 
 get_regression_table(m_full)
 get_regression_summaries(m_full)
+summary(m_full)
 ```
 
 <!-- Drop the variable with the highest p-value and re-fit the model. -->

@@ -1,0 +1,141 @@
+[
+	{
+		"id": "http://zotero.org/users/6543654/items/XNXZLFMU",
+		"type": "webpage",
+		"title": "f MapF Mapping Module",
+		"URL": "https://wisqars.cdc.gov:8443/cdcMapFramework/mapModuleInterface.jsp",
+		"accessed": {
+			"date-parts": [
+				[
+					"2020",
+					8,
+					13
+				]
+			]
+		}
+	},
+	{
+		"id": "http://zotero.org/users/6543654/items/SI872Z2A",
+		"type": "webpage",
+		"title": "Data Explorer",
+		"URL": "https://data.hrsa.gov/tools/data-explorer?ds=29,34",
+		"accessed": {
+			"date-parts": [
+				[
+					"2020",
+					8,
+					13
+				]
+			]
+		}
+	},
+	{
+		"id": "http://zotero.org/users/6543654/items/JTG6S6W6",
+		"type": "webpage",
+		"language": "en-us",
+		"title": "U.S. Opioid Prescribing Rate Maps | Drug Overdose | CDC Injury Center",
+		"URL": "https://www.cdc.gov/drugoverdose/maps/rxrate-maps.html",
+		"accessed": {
+			"date-parts": [
+				[
+					"2020",
+					8,
+					13
+				]
+			]
+		},
+		"issued": {
+			"date-parts": [
+				[
+					"2020",
+					3,
+					12
+				]
+			]
+		}
+	},
+	{
+		"id": "http://zotero.org/users/6543654/items/9SJ6ME2X",
+		"type": "article-journal",
+		"abstract": "The goal of this study was to examine the relationship between past-year frequency of prescription opioid misuse and past-year suicidal ideation, suicide planning, and suicide attempts. Secondary data analyses were conducted using data from 41,053 participants of the 2014 National Survey of Drug Use and Health. Past-year frequency of prescription opioid misuse was grouped into 4 categories: none, less than monthly (1–11 times), monthly to weekly (12–51 times), and weekly or more (52 times or more). Binomial logistic regression analyses adjusted for demographics, overall health rating, depression, anxiety, and substance use disorders to test the associations between frequency of prescription opioid misuse and suicide-related variables. Compared to those who did not endorse prescription opioid misuse in the past year, prescription opioid misuse was significantly associated with suicidal ideation, suicide planning, and suicide attempts for each frequency of use category in unadjusted models (p < 0.05). In adjusted models, frequency of prescription opioid misuse remained significantly associated with suicidal ideation (p < 0.05 for each frequency category); however, only the group reporting weekly or more use on average was associated with suicide planning and attempts (p < 0.05). The findings provide novel specificity regarding prescription opioid use in relation to suicide-related outcomes further supporting enhanced access to suicide prevention and nonpharmacological approaches to pain management across various settings.",
+		"container-title": "Journal of Psychiatric Research",
+		"DOI": "10.1016/j.jpsychires.2017.03.011",
+		"ISSN": "0022-3956",
+		"journalAbbreviation": "Journal of Psychiatric Research",
+		"language": "en",
+		"page": "1-7",
+		"source": "ScienceDirect",
+		"title": "Frequency of prescription opioid misuse and suicidal ideation, planning, and attempts",
+		"URL": "http://www.sciencedirect.com/science/article/pii/S0022395616301832",
+		"volume": "92",
+		"author": [
+			{
+				"family": "Ashrafioun",
+				"given": "Lisham"
+			},
+			{
+				"family": "Bishop",
+				"given": "Todd M."
+			},
+			{
+				"family": "Conner",
+				"given": "Kenneth R."
+			},
+			{
+				"family": "Pigeon",
+				"given": "Wilfred R."
+			}
+		],
+		"accessed": {
+			"date-parts": [
+				[
+					"2020",
+					8,
+					13
+				]
+			]
+		},
+		"issued": {
+			"date-parts": [
+				[
+					"2017",
+					9,
+					1
+				]
+			]
+		}
+	},
+	{
+		"id": "http://zotero.org/users/6543654/items/RJAIAKC6",
+		"type": "webpage",
+		"title": "NIMH » Suicide Deaths Are a Major Component of the Opioid Crisis that Must Be Addressed",
+		"URL": "https://www.nimh.nih.gov/about/director/messages/2019/suicide-deaths-are-a-major-component-of-the-opioid-crisis-that-must-be-addressed.shtml",
+		"accessed": {
+			"date-parts": [
+				[
+					"2020",
+					8,
+					13
+				]
+			]
+		}
+	},
+	{
+		"id": "http://zotero.org/users/6543654/items/9VDQPY52",
+		"type": "webpage",
+		"abstract": "Forty Americans die every day from overdoses linked to prescription opioids, but researchers say many doctors and dentists still have a \"prescribe and forget\" attitude toward the medications.",
+		"container-title": "NPR.org",
+		"language": "en",
+		"title": "Doctors And Dentists Still Flooding U.S. With Opioid Prescriptions",
+		"URL": "https://www.npr.org/2020/07/17/887590699/doctors-and-dentists-still-flooding-u-s-with-opioid-prescriptions",
+		"accessed": {
+			"date-parts": [
+				[
+					"2020",
+					8,
+					13
+				]
+			]
+		}
+	}
+]

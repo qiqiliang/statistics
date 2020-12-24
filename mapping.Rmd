@@ -1,0 +1,64 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+```{r}
+library("ggplot2")
+library("sf")
+theme_set(theme_bw())
+
+library(rnaturalearth) # map of countries of the world
+library(rnaturalearthdata) # pull country data 
+library(rgeos)
+world <- ne_countries(scale = "medium", returnclass = "sf")
+class(world)
+```
+
+```{r}
+ggplot(data = world) + # initiates ggplot graph. indicates main data stored in "world"
+  geom_sf() + # adds geometry stored in "sf" object.
+  labs( x = "Longitude", y = "Latitide", title = "World map", subtitle = paste0("(", length(unique(world$NAME)), " countires)"))
+```
+
+```{r}
+ggplot(data = world) + # initiates ggplot graph. indicates main data stored in "world"
+  geom_sf(aes(fill = pop_est)) + # adds geometry stored in "sf" object.
+  labs( x = "Longitude", y = "Latitide", title = "World map", subtitle = paste0("(", length(unique(world$NAME)), " countires)"))
+```
+```{r}
+ggplot(data = world) + # initiates ggplot graph. indicates main data stored in "world"
+  geom_sf(aes(fill = pop_est)) + # adds geometry stored in "sf" object. pop_est is variable
+  scale_fill_viridis_c(option = "plasma", trans = "sqrt") + # colorblind-friendly using sqrt of population
+  labs( x = "Longitude", y = "Latitide", title = "World map")
+```
+
+```{r}
+ggplot(data = world) +
+    geom_sf() +
+    coord_sf(crs = "+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs ")
+
+```
+
+```{r}
+ggplot(data = world) +
+    geom_sf() +
+    coord_sf(crs = "+init=epsg:3035")
+
+ggplot(data = world) +
+    geom_sf() +
+    coord_sf(crs = st_crs(3035))
+```
+
+```{r}
+ggplot(data = world) +
+    geom_sf() +
+    coord_sf(xlim = c(-102.15, -74.12), ylim = c(7.65, 33.97), expand = FALSE)
+
+```
+
+
