@@ -169,7 +169,7 @@ so_null_plot <- so_null %>%
 
 ```{r, label = "suicide and opioid plots"}
 # arrange the plots to be next to each other
-png("~/Documents/Stats Project w: qiqi/statistics/plots and figures/SR_OPR.png")
+pdf(width = 10, "~/Documents/Stats Project w: qiqi/statistics/plots and figures/SR_OPR.pdf")
 plot_grid(so_plot, so_rp_plot, so_rp_hplot, so_null_plot, ncol = 2)
 dev.off()
 ```
@@ -241,7 +241,7 @@ sp1_null_plot <- sp1_null %>%
 
 ```{r, label = "1xFPL and opioid plots"}
 # arrange the plots to be next to each other
-png("~/Documents/Stats Project w: qiqi/statistics/plots and figures/P1_OPR.png")
+pdf(width = 10, "~/Documents/Stats Project w: qiqi/statistics/plots and figures/P1_OPR.pdf")
 plot_grid(sp1_plot, sp1_rp_plot, sp1_rp_hplot, sp1_null_plot, ncol = 2)
 dev.off()
 ```
@@ -306,7 +306,7 @@ sp1_5_null_plot <- sp1_5_null %>%
 
 ```{r, label = "1.50XFPL and opioid plots"}
 # arrange the plots to be next to each other
-png("~/Documents/Stats Project w: qiqi/statistics/plots and figures/P1_5_OPR.png")
+pdf(width = 10, "~/Documents/Stats Project w: qiqi/statistics/plots and figures/P1_5_OPR.pdf")
 plot_grid(sp1_5_plot, sp1_5_rp_plot, sp1_5_rp_hplot, sp1_5_null_plot, ncol = 2)
 dev.off()
 ```
@@ -372,7 +372,7 @@ sp2_null_plot <- sp2_null %>%
 
 ```{r, label = "2XFPL and opioid plots"}
 # arrange the plots to be next to each other
-png("~/Documents/Stats Project w: qiqi/statistics/plots and figures/P2_OPR.png")
+pdf(width = 10, "~/Documents/Stats Project w: qiqi/statistics/plots and figures/P2_OPR.pdf")
 plot_grid(sp2_plot, sp2_rp_plot, sp2_rp_hplot, sp2_null_plot, ncol = 2)
 dev.off()
 ```
@@ -438,7 +438,7 @@ spi_null_plot <- spi_null %>%
 
 ```{r, label = "poverty index and opioid plots"}
 # arrange the plots to be next to each other
-png("~/Documents/Stats Project w: qiqi/statistics/plots and figures/PI_OPR.png")
+pdf("~/Documents/Stats Project w: qiqi/statistics/plots and figures/PI_OPR.pdf", width = 10)
 plot_grid(spi_plot, spi_rp_plot, spi_rp_hplot, spi_null_plot, ncol = 2)
 dev.off()
 ```
@@ -511,7 +511,7 @@ spo_plot <-ggplot(spo_rate, aes(x = Avg_Prescr_Rate, y = Avg_Suicide_Rate, color
   scale_color_gradient2(midpoint=mid, low="green", mid="white", high="red", space ="Lab", name = "Poverty Index\n (0 to 100)") +
   labs(title = "Visualization of Opioids, Suicide, and Poverty Relationship", y = "Suicides (per 100,000 people)", x = "Opioid Prescriptions (per 100 persons)")
 
-png("~/Documents/Stats Project w: qiqi/statistics/plots and figures/SPO.png")
+pdf(width = 10, "~/Documents/Stats Project w: qiqi/statistics/plots and figures/SPO.pdf")
 spo_plot
 dev.off()
 ```
@@ -569,7 +569,7 @@ pis_null %>%
 
 ```{r, label = "poverty index and SUICIDE plots"}
 # arrange the plots to be next to each other
-png("~/Documents/Stats Project w: qiqi/statistics/plots and figures/SR_PI.png")
+pdf(width = 10, "~/Documents/Stats Project w: qiqi/statistics/plots and figures/SR_PI.pdf")
 plot_grid(pis_plot, pis_rp_plot, pis_rp_hplot, pis_null_plot, ncol = 2)
 dev.off()
 ```
